@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+     SEO — replace every "YOUR-USERNAME"/"YOUR-REPO" placeholder
+     below with your actual GitHub Pages path before publishing,
+     e.g. https://janedoe.github.io/bst-debugger/
+     ============================================================ -->
+<title>BST Visualizer & Debugger — Step Through Your Python Binary Search Tree Code Online</title>
+<meta name="description" content="Free online BST visualizer and debugger. Paste your own Python binary search tree or n-ary tree code and watch it execute line by line — real interpreter, real recursion, real tree drawing. No signup, runs entirely in your browser.">
+<meta name="keywords" content="BST visualizer, binary search tree debugger, python tree visualizer, tree data structure visualizer, python code debugger online, recursive algorithm visualizer, DFS visualizer, insert delete search BST, learn binary search trees, python tutor alternative">
+<meta name="author" content="BST Debugger">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://YOUR-USERNAME.github.io/YOUR-REPO/">
+
+<!-- Open Graph / Facebook, LinkedIn, Slack, Discord previews -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://YOUR-USERNAME.github.io/YOUR-REPO/">
+<meta property="og:title" content="BST Visualizer & Debugger — Step Through Your Python Code Online">
+<meta property="og:description" content="Paste any Python binary search tree or n-ary tree implementation and watch the real interpreter execute it, line by line, with the tree drawn and the recursion path highlighted.">
+<meta property="og:image" content="https://YOUR-USERNAME.github.io/YOUR-REPO/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="BST Visualizer & Debugger — Step Through Your Python Code Online">
+<meta name="twitter:description" content="Paste any Python binary search tree or n-ary tree implementation and watch it execute line by line, with the tree drawn live and the recursion path highlighted.">
+<meta name="twitter:image" content="https://YOUR-USERNAME.github.io/YOUR-REPO/og-image.png">
+
+<meta name="theme-color" content="#0E1218">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230E1218'/%3E%3Ccircle cx='50' cy='24' r='13' fill='none' stroke='%234FD1C5' stroke-width='6'/%3E%3Cline x1='50' y1='37' x2='30' y2='60' stroke='%2328323F' stroke-width='5'/%3E%3Cline x1='50' y1='37' x2='70' y2='60' stroke='%2328323F' stroke-width='5'/%3E%3Ccircle cx='30' cy='70' r='11' fill='none' stroke='%23DCE3EC' stroke-width='6'/%3E%3Ccircle cx='70' cy='70' r='11' fill='none' stroke='%23DCE3EC' stroke-width='6'/%3E%3C/svg%3E">
+
+<!-- Structured data for rich results -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "BST Visualizer & Debugger",
+  "url": "https://YOUR-USERNAME.github.io/YOUR-REPO/",
+  "description": "Free browser-based tool that executes your own Python binary search tree or n-ary tree code and visualizes real execution line by line, with the live recursion path highlighted on the tree.",
+  "applicationCategory": "DeveloperApplication",
+  "operatingSystem": "Any (runs in any modern web browser)",
+  "browserRequirements": "Requires JavaScript and WebAssembly support",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<style>
+  :root{
+    --bg:#0E1218; --panel:#161C25; --panel-alt:#1C2430; --border:#28323F;
+    --text:#DCE3EC; --muted:#7C8AA0;
+    --teal:#4FD1C5; --amber:#F2B155; --red:#E8735E; --green:#6FCF97;
+    --mono:'IBM Plex Mono', monospace; --sans:'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);height:100%;}
+  .app{display:flex;flex-direction:column;height:100vh;min-height:640px;}
+  header{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:12px;flex-shrink:0;flex-wrap:wrap;}
+  header h1{font-family:var(--mono);font-size:15px;font-weight:600;margin:0;letter-spacing:0.02em;}
+  header h1 span{color:var(--teal);}
+  header p{margin:0;font-size:12px;color:var(--muted);}
+  #pyStatus{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--muted);padding:4px 10px;border:1px solid var(--border);border-radius:20px;}
+  #pyStatus.ready{color:var(--green);border-color:var(--green);}
+  #pyStatus.busy{color:var(--amber);border-color:var(--amber);}
+  #pyStatus.err{color:var(--red);border-color:var(--red);}
+  main.grid{flex:1;display:grid;grid-template-columns:380px 1fr 300px;gap:1px;background:var(--border);overflow:hidden;}
+  @media (max-width:1000px){ main.grid{grid-template-columns:1fr;grid-template-rows:auto auto auto;overflow:auto;} .app{height:auto;min-height:100vh;} }
+  .panel{background:var(--panel);display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+  .panel-head{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;justify-content:space-between;align-items:center;}
+  .panel-head b{color:var(--teal);font-weight:600;text-transform:none;letter-spacing:0;}
+  textarea#codeInput{flex:0 0 auto;height:230px;background:var(--panel-alt);color:var(--text);border:none;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;padding:12px 14px;resize:vertical;outline:none;line-height:1.55;tab-size:4;}
+  .controls{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  button{font-family:var(--sans);font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--panel-alt);color:var(--text);padding:6px 10px;border-radius:5px;cursor:pointer;transition:border-color .15s,color .15s;}
+  button:hover:not(:disabled){border-color:var(--teal);color:var(--teal);}
+  button:disabled{opacity:0.3;cursor:not-allowed;}
+  button.primary{background:var(--teal);color:#0E1218;border-color:var(--teal);}
+  button.primary:hover:not(:disabled){opacity:0.85;color:#0E1218;}
+  .speed-row{display:flex;align-items:center;gap:8px;padding:0 14px 10px;font-size:11px;color:var(--muted);font-family:var(--mono);}
+  .speed-row input{flex:1;accent-color:var(--teal);}
+  .hint{padding:8px 14px 10px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);line-height:1.5;}
+  .hint code{color:var(--teal);}
+  pre#codeView{flex:1;margin:0;padding:8px 0;overflow-y:auto;font-family:var(--mono);font-size:12px;line-height:1.85;}
+  pre#codeView .line{display:block;padding:1px 14px 1px 8px;border-left:3px solid transparent;color:var(--muted);white-space:pre-wrap;word-break:break-word;}
+  pre#codeView .line .num{display:inline-block;width:26px;color:#3D4756;user-select:none;}
+  pre#codeView .line.active{border-left-color:var(--amber);background:rgba(242,177,85,0.08);color:var(--text);}
+  #treeScroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:20px;}
+  svg#treeSvg{overflow:visible;}
+  .edge{stroke:var(--border);stroke-width:2;fill:none;transition:x1 .3s,y1 .3s,x2 .3s,y2 .3s;}
+  .node-g{transition:transform .3s ease;}
+  .node-circle{fill:var(--panel-alt);stroke:var(--border);stroke-width:2;transition:fill .2s,stroke .2s,filter .2s;}
+  .node-text{fill:var(--text);font-family:var(--mono);font-size:12.5px;font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+  .node-g.active .node-circle{stroke:var(--amber);stroke-width:3;filter:drop-shadow(0 0 8px rgba(242,177,85,.55));}
+  .node-g.onpath .node-circle{stroke:var(--teal);stroke-width:2.5;fill:rgba(79,209,197,0.10);}
+  .node-g.visited .node-circle{stroke:#3D4756;opacity:0.6;}
+  .node-g.visited .node-text{opacity:0.55;}
+  .edge-lit{stroke:var(--teal);stroke-width:2.5;}
+  .empty-msg{color:var(--muted);font-family:var(--mono);font-size:13px;padding:40px;text-align:center;}
+  #stepIndicator{font-family:var(--mono);font-size:11px;color:var(--muted);padding:6px 14px;border-bottom:1px solid var(--border);}
+  #watchList{padding:12px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px;flex-shrink:0;max-height:180px;overflow-y:auto;}
+  #watchList .row{display:flex;justify-content:space-between;gap:8px;padding:2px 0;color:var(--muted);}
+  #watchList .row b{color:var(--text);font-weight:600;text-align:right;word-break:break-all;}
+  #traceLog{flex:1;overflow-y:auto;padding:8px 0;font-family:var(--mono);font-size:11px;}
+  #traceLog .entry{padding:3px 14px;color:var(--muted);border-left:3px solid transparent;line-height:1.5;cursor:pointer;}
+  #traceLog .entry:hover{color:var(--text);}
+  #traceLog .entry.current{color:var(--amber);border-left-color:var(--amber);background:rgba(242,177,85,0.07);}
+  #outputBox{border-top:1px solid var(--border);max-height:120px;overflow-y:auto;padding:8px 14px;font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre-wrap;flex-shrink:0;}
+  #outputBox.err{color:var(--red);}
+  .seo-content{max-width:860px;margin:0 auto;padding:48px 24px;font-size:14px;line-height:1.7;color:var(--muted);}
+  .seo-content h2{font-family:var(--mono);font-size:16px;color:var(--text);margin:32px 0 10px;}
+  .seo-content section:first-child h2{margin-top:0;}
+  .seo-content p{margin:0 0 6px;}
+  .seo-content code{font-family:var(--mono);color:var(--teal);background:var(--panel-alt);padding:1px 5px;border-radius:4px;font-size:12.5px;}
+  .seo-content ul{margin:6px 0 0;padding-left:20px;}
+  .seo-content li{margin-bottom:6px;}
+  .site-footer{border-top:1px solid var(--border);padding:20px 24px 40px;text-align:center;font-size:12px;color:var(--muted);}
+  .site-footer a{color:var(--teal);text-decoration:none;}
+  .site-footer a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>BST <span>Debugger</span></h1>
+    <p>runs your actual Python code and visualizes the real tree state, line by line</p>
+    <span id="pyStatus">loading python…</span>
+  </header>
+  <main class="grid">
+    <section class="panel">
+      <div class="panel-head">Your Python Code</div>
+      <textarea id="codeInput" spellcheck="false"></textarea>
+      <div class="controls">
+        <button id="runBtn" class="primary" disabled>▶ Run</button>
+        <button id="sampleBtn">Sample</button>
+      </div>
+      <div class="controls" id="playControls" style="display:none;">
+        <button id="backBtn">◀ Back</button>
+        <button id="stepBtn">Step ▶</button>
+        <button id="playBtn">Auto-Play</button>
+        <button id="pauseBtn" disabled>Pause</button>
+        <button id="endBtn">Skip to End ⏭</button>
+      </div>
+      <div class="speed-row">
+        <span>speed</span>
+        <input type="range" id="speedSlider" min="60" max="1000" value="350">
+        <span id="speedLabel">350ms</span>
+      </div>
+      <div class="hint">Works with binary trees (<code>left</code>/<code>right</code> attrs) and n-ary trees (a <code>children</code> list) alike, on objects or dicts. Value is read from <code>val</code>, <code>value</code>, <code>data</code>, <code>key</code> or <code>name</code>. A <code>root</code>-like variable anywhere in your code (module level, inside <code>main()</code>, or as <code>.root</code> on a wrapper class) is auto-detected as the tree.</div>
+      <div class="panel-head">Source <b id="stepIndicator2"></b></div>
+      <pre id="codeView"></pre>
+    </section>
+
+    <section class="panel tree-panel">
+      <div class="panel-head">Tree <span id="stepIndicator"></span></div>
+      <div id="treeScroll"><svg id="treeSvg"></svg></div>
+      <div id="outputBox"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">Variables — <b id="wFunc">—</b></div>
+      <div id="watchList"><div class="row"><span>run the code to begin</span></div></div>
+      <div class="panel-head">Trace</div>
+      <div id="traceLog"></div>
+    </section>
+  </main>
+</div>
+
+<article class="seo-content">
+  <section>
+    <h2>What is this BST Visualizer?</h2>
+    <p>This is a free, browser-based tool for visualizing and debugging binary search trees and n-ary trees written in Python. Unlike most tree visualizers, which only animate a fixed, pre-built algorithm, this tool runs <strong>your own code</strong> — paste any Python implementation of a binary search tree, an n-ary tree, or any recursive tree/graph structure, and it executes the real Python interpreter in your browser to trace exactly what your code does, line by line.</p>
+  </section>
+  <section>
+    <h2>How it works</h2>
+    <p>The tool uses Pyodide, a full CPython runtime compiled to WebAssembly, so your code runs as real Python — not a simulation or reimplementation. As execution proceeds, a line-level tracer inspects your live objects after every statement, automatically detects your tree's root variable, and reconstructs the tree structure by walking whatever attributes your node objects use for children and values. The result is a step-by-step debugger that shows the actual line executing, the live local variables in the current stack frame, the tree redrawn at every step, and the real recursion path highlighted as it moves through the tree.</p>
+  </section>
+  <section>
+    <h2>Supported tree structures</h2>
+    <p>Works with classic binary search trees using <code>left</code>/<code>right</code> child attributes (or dict-style keys), and with n-ary trees using a <code>children</code> list. Node values are read from common attribute names like <code>val</code>, <code>value</code>, <code>data</code>, <code>key</code>, or <code>name</code>. No special base class or library import is required — most conventional tree implementations work without modification.</p>
+  </section>
+  <section>
+    <h2>Common uses</h2>
+    <ul>
+      <li>Debugging your own BST insert, delete, and search implementations for a data structures course or coding interview prep</li>
+      <li>Visualizing depth-first and breadth-first traversal order on a real tree</li>
+      <li>Understanding how recursive functions build up and unwind a call stack while operating on a tree</li>
+      <li>Teaching binary search tree concepts with a live, real-code demonstration instead of a static diagram</li>
+    </ul>
+  </section>
+</article>
+
+<footer class="site-footer">
+  <p>Runs entirely client-side in your browser via <a href="https://pyodide.org" rel="noopener">Pyodide</a> — no code is uploaded to any server.</p>
+</footer>
+
+<script>
+const SAMPLE = `class Node:
+    def __init__(self, val):
+        self.val = val
+        self.left = None
+        self.right = None
+
+def insert(root, val):
+    if root is None:
+        return Node(val)
+    if val < root.val:
+        root.left = insert(root.left, val)
+    elif val > root.val:
+        root.right = insert(root.right, val)
+    return root
+
+def search(root, val):
+    if root is None:
+        return None
+    if val == root.val:
+        return root
+    if val < root.val:
+        return search(root.left, val)
+    return search(root.right, val)
+
+def delete(root, val):
+    if root is None:
+        return None
+    if val < root.val:
+        root.left = delete(root.left, val)
+    elif val > root.val:
+        root.right = delete(root.right, val)
+    else:
+        if root.left is None:
+            return root.right
+        if root.right is None:
+            return root.left
+        succ = root.right
+        while succ.left is not None:
+            succ = succ.left
+        root.val = succ.val
+        root.right = delete(root.right, succ.val)
+    return root
+
+root = None
+for v in [50, 30, 70, 20, 40, 60, 80]:
+    root = insert(root, v)
+
+found = search(root, 60)
+print("search(60):", "found" if found else "not found")
+
+root = delete(root, 70)
+print("deleted 70")
+`;
+
+const DRIVER = `
+import sys, json, io, contextlib, traceback
+
+MAX_STEPS = 4000
+trace_steps = []
+user_globals = {}
+
+VALUE_ATTRS = ('val', 'value', 'data', 'key', 'item', 'label', 'name', 'v')
+LEFT_ATTRS = ('left', 'l', 'left_child', 'leftChild', 'lchild')
+RIGHT_ATTRS = ('right', 'r', 'right_child', 'rightChild', 'rchild')
+
+def get_val(obj):
+    for attr in VALUE_ATTRS:
+        if hasattr(obj, attr):
+            try:
+                return getattr(obj, attr)
+            except Exception:
+                pass
+        if isinstance(obj, dict) and attr in obj:
+            return obj[attr]
+    return repr(obj)
+
+def _first_attr(obj, names):
+    for n in names:
+        if hasattr(obj, n):
+            return getattr(obj, n)
+        if isinstance(obj, dict) and n in obj:
+            return obj[n]
+    return None
+
+def get_child(obj, side):
+    return _first_attr(obj, LEFT_ATTRS if side == 'left' else RIGHT_ATTRS)
+
+def _has_child_attr(obj, names):
+    if isinstance(obj, dict):
+        return any(n in obj for n in names)
+    return any(hasattr(obj, n) for n in names)
+
+CHILDREN_LIST_ATTRS = ('children', 'kids', 'child_nodes', 'nodes')
+
+def _list_children_attr(obj):
+    # Returns a list of children if obj exposes a list/tuple of children
+    # under a conventional name (n-ary tree style), else None.
+    for name in CHILDREN_LIST_ATTRS:
+        if hasattr(obj, name):
+            v = getattr(obj, name)
+            if isinstance(v, (list, tuple)):
+                return list(v)
+        if isinstance(obj, dict) and name in obj and isinstance(obj[name], (list, tuple)):
+            return list(obj[name])
+    return None
+
+def is_node_like(obj):
+    if obj is None or isinstance(obj, (int, float, str, bool, list, tuple, set)):
+        return False
+    if _list_children_attr(obj) is not None:
+        return True
+    return _has_child_attr(obj, LEFT_ATTRS) or _has_child_attr(obj, RIGHT_ATTRS)
+
+def get_children(obj):
+    # Unify n-ary 'children' lists and binary 'left'/'right' attrs into a
+    # single ordered list of child objects (None entries kept as gaps for
+    # binary trees so left/right positions aren't confused).
+    lst = _list_children_attr(obj)
+    if lst is not None:
+        return lst
+    kids = []
+    if _has_child_attr(obj, LEFT_ATTRS):
+        kids.append(get_child(obj, 'left'))
+    if _has_child_attr(obj, RIGHT_ATTRS):
+        kids.append(get_child(obj, 'right'))
+    return kids
+
+def jsafe(v):
+    try:
+        json.dumps(v)
+        return v
+    except Exception:
+        return repr(v)
+
+def snapshot_tree(root):
+    if root is None or not is_node_like(root):
+        return None
+    nodes = {}
+    visited = set()
+    def walk(o):
+        if o is None:
+            return None
+        oid = id(o)
+        if oid in visited:
+            return oid
+        visited.add(oid)
+        try:
+            val = jsafe(get_val(o))
+        except Exception:
+            val = '?'
+        nodes[str(oid)] = {'id': oid, 'value': val, 'children': []}
+        child_ids = []
+        for c in get_children(o):
+            if c is None:
+                continue
+            if is_node_like(c):
+                child_ids.append(walk(c))
+        nodes[str(oid)]['children'] = child_ids
+        return oid
+    root_id = walk(root)
+    return {'root': root_id, 'nodes': nodes}
+
+ROOT_NAMES = ('root', 'tree', 'bst', 'head', 'node')
+ROOT_ATTR_NAMES = ('root', 'head', 'top')
+
+def _collect_frames(frame):
+    # All frames belonging to the user's executing code, from the
+    # module/driver level down to the current (innermost) frame.
+    frames = []
+    f = frame
+    while f is not None and f.f_globals is user_globals:
+        frames.append(f)
+        f = f.f_back
+    frames.reverse()
+    return frames
+
+def _collect_namespaces(frame):
+    frames = _collect_frames(frame)
+    namespaces = [frames[0].f_globals] if frames else []
+    for fr in frames:
+        if fr.f_locals is not fr.f_globals:
+            namespaces.append(fr.f_locals)
+    return namespaces
+
+NODE_LOCAL_PRIORITY = ('self', 'node', 'current', 'cur', 'curr', 'n', 'root')
+
+def frame_node_id(frame):
+    # The node this particular stack frame is "standing on" -- i.e. which
+    # tree node this call of the function is operating on. This is what
+    # lets us show the interpreter's actual recursion path through the
+    # tree, not just a single guessed node.
+    for name in NODE_LOCAL_PRIORITY:
+        if name in frame.f_locals:
+            v = frame.f_locals[name]
+            if is_node_like(v):
+                return id(v)
+    return None
+
+def call_stack_path(frame):
+    # Ordered root-to-current list of node ids, one per active stack
+    # frame that is "on" a node -- i.e. the live recursion path.
+    path = []
+    for fr in _collect_frames(frame):
+        nid = frame_node_id(fr)
+        if nid is not None:
+            path.append(nid)
+    return path
+
+def find_root_candidate(frame):
+    namespaces = _collect_namespaces(frame)
+    # Pass 1: look for a conventionally-named variable holding a node,
+    # or an object exposing a .root/.head/.top attribute (wrapper class).
+    for ns in namespaces:
+        for name in ROOT_NAMES:
+            if name in ns:
+                v = ns[name]
+                if is_node_like(v):
+                    return v
+                for attr in ROOT_ATTR_NAMES:
+                    if hasattr(v, attr) and is_node_like(getattr(v, attr, None)):
+                        return getattr(v, attr)
+    # Pass 2: look for any variable at all whose value is node-like.
+    for ns in namespaces:
+        for v in ns.values():
+            if is_node_like(v):
+                return v
+            for attr in ROOT_ATTR_NAMES:
+                if hasattr(v, attr) and is_node_like(getattr(v, attr, None)):
+                    return getattr(v, attr)
+    return None
+
+def safe_locals(frame):
+    out = {}
+    for k, v in frame.f_locals.items():
+        if k.startswith('__'):
+            continue
+        try:
+            if is_node_like(v):
+                out[k] = 'Node(' + str(get_val(v)) + ')'
+            elif v is None:
+                out[k] = 'None'
+            else:
+                r = repr(v)
+                out[k] = r if len(r) <= 60 else r[:57] + '...'
+        except Exception:
+            out[k] = '<?>'
+    return out
+
+def tracer(frame, event, arg):
+    if frame.f_globals is not user_globals:
+        return None
+    if event == 'line':
+        if len(trace_steps) >= MAX_STEPS:
+            sys.settrace(None)
+            raise RuntimeError('Step limit (4000) exceeded -- possible infinite loop.')
+        try:
+            root_cand = find_root_candidate(frame)
+            snap = snapshot_tree(root_cand)
+        except Exception:
+            snap = None
+        try:
+            path = call_stack_path(frame)
+        except Exception:
+            path = []
+        trace_steps.append({
+            'line': frame.f_lineno,
+            'func': frame.f_code.co_name,
+            'locals': safe_locals(frame),
+            'tree': snap,
+            'stack': path,
+            'active': path[-1] if path else None,
+        })
+    return tracer
+
+error_msg = None
+out_buf = io.StringIO()
+try:
+    compiled = compile(__USER_CODE__, '<user_code>', 'exec')
+    sys.settrace(tracer)
+    with contextlib.redirect_stdout(out_buf):
+        exec(compiled, user_globals)
+except Exception:
+    error_msg = traceback.format_exc()
+finally:
+    sys.settrace(None)
+
+json.dumps({'steps': trace_steps, 'output': out_buf.getvalue(), 'error': error_msg})
+`;
+
+let pyodideInstance = null;
+const statusEl = document.getElementById('pyStatus');
+const codeInput = document.getElementById('codeInput');
+const runBtn = document.getElementById('runBtn');
+const sampleBtn = document.getElementById('sampleBtn');
+const codeView = document.getElementById('codeView');
+const outputBox = document.getElementById('outputBox');
+const watchList = document.getElementById('watchList');
+const wFunc = document.getElementById('wFunc');
+const traceLog = document.getElementById('traceLog');
+const stepIndicator = document.getElementById('stepIndicator');
+const stepIndicator2 = document.getElementById('stepIndicator2');
+const playControls = document.getElementById('playControls');
+const backBtn = document.getElementById('backBtn');
+const stepBtn = document.getElementById('stepBtn');
+const playBtn = document.getElementById('playBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const endBtn = document.getElementById('endBtn');
+const speedSlider = document.getElementById('speedSlider');
+const speedLabel = document.getElementById('speedLabel');
+
+codeInput.value = SAMPLE;
+
+const state = { steps: [], idx: -1, timer: null, playing: false };
+
+async function initPyodide(){
+  try{
+    statusEl.textContent = 'loading python…';
+    statusEl.className = 'busy';
+    pyodideInstance = await loadPyodide({ indexURL: "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/" });
+    statusEl.textContent = 'python ready';
+    statusEl.className = 'ready';
+    runBtn.disabled = false;
+  } catch(e){
+    statusEl.textContent = 'failed to load python runtime';
+    statusEl.className = 'err';
+    console.error(e);
+  }
+}
+initPyodide();
+
+function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+function renderSourceLines(code){
+  const lines = code.split('\n');
+  codeView.innerHTML = lines.map((l,i)=>
+    `<span class="line" data-line="${i+1}"><span class="num">${i+1}</span>${escapeHtml(l)}</span>`
+  ).join('');
+}
+
+function highlightLine(n){
+  codeView.querySelectorAll('.line').forEach(el=>el.classList.remove('active'));
+  const el = codeView.querySelector(`.line[data-line="${n}"]`);
+  if (el){ el.classList.add('active'); el.scrollIntoView({block:'center'}); }
+}
+
+function computeVisitedSet(uptoIdx){
+  const seen = new Set();
+  for (let i = 0; i <= uptoIdx; i++){
+    const st = state.steps[i];
+    if (st.active !== null && st.active !== undefined) seen.add(String(st.active));
+  }
+  return seen;
+}
+
+function childrenOf(snap, idKey){
+  const n = snap.nodes[String(idKey)];
+  if (!n) return [];
+  return (n.children || []).filter(c => c !== null && c !== undefined);
+}
+
+function depthOf(snap, idKey){
+  if (idKey === null || idKey === undefined) return 0;
+  const kids = childrenOf(snap, idKey);
+  if (!kids.length) return 1;
+  return 1 + Math.max(...kids.map(k => depthOf(snap, k)));
+}
+
+function layout(snap){
+  // Generalized tree layout: leaves get the next slot left-to-right,
+  // internal nodes are centered over their children's x-range. Works
+  // for binary (left/right) trees and n-ary (children-list) trees alike.
+  const positions = {};
+  let leafCounter = 0;
+  const SPX = 58, SPY = 76, TOP = 36;
+  function place(idKey, depth){
+    if (idKey === null || idKey === undefined) return null;
+    const kids = childrenOf(snap, idKey);
+    let x;
+    if (!kids.length){
+      x = leafCounter*SPX + SPX;
+      leafCounter++;
+    } else {
+      const xs = kids.map(k => place(k, depth+1));
+      x = (Math.min(...xs) + Math.max(...xs)) / 2;
+    }
+    positions[String(idKey)] = { x, y: depth*SPY + TOP };
+    return x;
+  }
+  place(snap.root, 0);
+  return { positions, width: Math.max(leafCounter*SPX + SPX, 220), height: SPY*Math.max(1, depthOf(snap, snap.root)) + 100 };
+}
+
+function renderTree(snap, activeId, pathIds, visitedIds){
+  const wrap = document.getElementById('treeScroll');
+  const svg = document.getElementById('treeSvg');
+  pathIds = pathIds || new Set();
+  visitedIds = visitedIds || new Set();
+  if (!snap || snap.root === null || snap.root === undefined){
+    svg.innerHTML = ''; svg.setAttribute('width',0); svg.setAttribute('height',0);
+    if (!wrap.querySelector('.empty-msg')){
+      wrap.innerHTML = '<div class="empty-msg">no tree detected yet — run your code</div>';
+      wrap.appendChild(svg);
+    }
+    return;
+  }
+  const emptyMsg = wrap.querySelector('.empty-msg');
+  if (emptyMsg) emptyMsg.remove();
+  if (!wrap.contains(svg)) wrap.appendChild(svg);
+
+  const { positions, width, height } = layout(snap);
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+
+  // Edges along the live recursion path (consecutive entries in pathIds
+  // that are direct parent/child) get drawn as "lit up" -- this is the
+  // trail showing where the interpreter has walked to reach the current node.
+  const pathArr = Array.from(pathIds);
+  const litEdges = new Set();
+  for (let i = 0; i < pathArr.length - 1; i++) litEdges.add(pathArr[i] + '>' + pathArr[i+1]);
+
+  let html = '';
+  Object.values(snap.nodes).forEach(n=>{
+    const p = positions[String(n.id)];
+    if (!p) return;
+    (n.children || []).forEach(childId=>{
+      if (childId !== null && childId !== undefined){
+        const c = positions[String(childId)];
+        if (!c) return;
+        const lit = litEdges.has(String(n.id) + '>' + String(childId));
+        html += `<line class="edge${lit ? ' edge-lit' : ''}" x1="${p.x}" y1="${p.y}" x2="${c.x}" y2="${c.y}"></line>`;
+      }
+    });
+  });
+  svg.innerHTML = html;
+
+  Object.values(snap.nodes).forEach(n=>{
+    const p = positions[String(n.id)];
+    if (!p) return;
+    const idStr = String(n.id);
+    let cls = 'node-g';
+    if (idStr === String(activeId)) cls += ' active';
+    else if (pathIds.has(idStr)) cls += ' onpath';
+    else if (visitedIds.has(idStr)) cls += ' visited';
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class', cls);
+    g.style.transform = `translate(${p.x}px,${p.y}px)`;
+    g.innerHTML = `<circle class="node-circle" r="19"></circle><text class="node-text" y="1">${escapeHtml(String(n.value))}</text>`;
+    svg.appendChild(g);
+  });
+}
+
+function renderLocals(locals, func){
+  wFunc.textContent = func || '—';
+  const keys = Object.keys(locals);
+  watchList.innerHTML = keys.length
+    ? keys.map(k=>`<div class="row"><span>${escapeHtml(k)}</span><b>${escapeHtml(String(locals[k]))}</b></div>`).join('')
+    : '<div class="row"><span>(no locals)</span></div>';
+}
+
+function buildTraceLog(){
+  traceLog.innerHTML = state.steps.map((s,i)=>
+    `<div class="entry" data-idx="${i}">L${s.line} · ${escapeHtml(s.func)}()</div>`
+  ).join('');
+  traceLog.querySelectorAll('.entry').forEach(el=>{
+    el.addEventListener('click', ()=>{ stopPlay(); showStep(parseInt(el.dataset.idx,10)); });
+  });
+}
+
+function showStep(i){
+  if (i < 0 || i >= state.steps.length) return;
+  state.idx = i;
+  const step = state.steps[i];
+  highlightLine(step.line);
+  renderLocals(step.locals, step.func);
+  const activeId = (step.active !== null && step.active !== undefined) ? String(step.active) : null;
+  const pathIds = new Set((step.stack || []).map(String));
+  const visitedIds = computeVisitedSet(i);
+  renderTree(step.tree, activeId, pathIds, visitedIds);
+  stepIndicator.textContent = `step ${i+1} / ${state.steps.length}`;
+  stepIndicator2.textContent = `line ${step.line}`;
+  traceLog.querySelectorAll('.entry').forEach(el=>el.classList.toggle('current', parseInt(el.dataset.idx,10)===i));
+  const cur = traceLog.querySelector('.entry.current');
+  if (cur) cur.scrollIntoView({block:'nearest'});
+  backBtn.disabled = i <= 0;
+  stepBtn.disabled = i >= state.steps.length - 1;
+  endBtn.disabled = i >= state.steps.length - 1;
+}
+
+function stopPlay(){
+  if (state.timer) clearInterval(state.timer);
+  state.timer = null; state.playing = false;
+  pauseBtn.disabled = true; playBtn.disabled = false;
+}
+function startPlay(){
+  if (state.playing || state.idx >= state.steps.length - 1) return;
+  state.playing = true; playBtn.disabled = true; pauseBtn.disabled = false;
+  state.timer = setInterval(()=>{
+    if (state.idx >= state.steps.length - 1){ stopPlay(); return; }
+    showStep(state.idx + 1);
+  }, parseInt(speedSlider.value, 10));
+}
+
+backBtn.addEventListener('click', ()=>{ stopPlay(); showStep(state.idx - 1); });
+stepBtn.addEventListener('click', ()=>{ stopPlay(); showStep(state.idx + 1); });
+playBtn.addEventListener('click', startPlay);
+pauseBtn.addEventListener('click', stopPlay);
+endBtn.addEventListener('click', ()=>{ stopPlay(); showStep(state.steps.length - 1); });
+speedSlider.addEventListener('input', ()=>{
+  speedLabel.textContent = speedSlider.value + 'ms';
+  if (state.playing){ stopPlay(); startPlay(); }
+});
+sampleBtn.addEventListener('click', ()=>{ codeInput.value = SAMPLE; });
+
+async function runCode(){
+  stopPlay();
+  if (!pyodideInstance){ statusEl.textContent = 'python still loading…'; return; }
+  runBtn.disabled = true;
+  statusEl.textContent = 'running…'; statusEl.className = 'busy';
+  outputBox.className = ''; outputBox.textContent = '';
+  const code = codeInput.value;
+  renderSourceLines(code);
+  try{
+    pyodideInstance.globals.set('__USER_CODE__', code);
+    const resultJson = await pyodideInstance.runPythonAsync(DRIVER);
+    const data = JSON.parse(resultJson);
+    state.steps = data.steps || [];
+    state.idx = -1;
+    buildTraceLog();
+    if (data.error){
+      outputBox.className = 'err';
+      outputBox.textContent = (data.output ? data.output + '\n' : '') + data.error;
+    } else {
+      outputBox.textContent = data.output || '(no output)';
+    }
+    statusEl.textContent = data.error
+      ? `finished with error — ${state.steps.length} steps captured`
+      : `done — ${state.steps.length} steps captured`;
+    statusEl.className = data.error ? 'err' : 'ready';
+    playControls.style.display = 'flex';
+    if (state.steps.length){ showStep(0); }
+    else { renderTree(null, null); renderLocals({}, null); }
+  } catch(e){
+    statusEl.textContent = 'run failed: ' + e.message;
+    statusEl.className = 'err';
+    outputBox.className = 'err';
+    outputBox.textContent = String(e);
+    console.error(e);
+  } finally {
+    runBtn.disabled = false;
+  }
+}
+runBtn.addEventListener('click', runCode);
+
+renderSourceLines(codeInput.value);
+renderTree(null, null);
+</script>
+</body>
+</html>
