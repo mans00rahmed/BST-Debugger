@@ -536,6 +536,22 @@ initPyodide();
 
 function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
+function scrollIntoContainer(el, container, padding){
+  // Manual scroll, scoped strictly to the given scrollable container.
+  // Never touches window/page scroll, unlike el.scrollIntoView().
+  if (!el || !container) return;
+  padding = padding || 8;
+  const elTop = el.offsetTop;
+  const elBottom = elTop + el.offsetHeight;
+  const viewTop = container.scrollTop;
+  const viewBottom = viewTop + container.clientHeight;
+  if (elTop < viewTop){
+    container.scrollTop = Math.max(0, elTop - padding);
+  } else if (elBottom > viewBottom){
+    container.scrollTop = elBottom - container.clientHeight + padding;
+  }
+}
+
 function renderSourceLines(code){
   const lines = code.split('\n');
   codeView.innerHTML = lines.map((l,i)=>
@@ -546,7 +562,7 @@ function renderSourceLines(code){
 function highlightLine(n){
   codeView.querySelectorAll('.line').forEach(el=>el.classList.remove('active'));
   const el = codeView.querySelector(`.line[data-line="${n}"]`);
-  if (el){ el.classList.add('active'); el.scrollIntoView({block:'center'}); }
+  if (el){ el.classList.add('active'); scrollIntoContainer(el, codeView, 40); }
 }
 
 function computeVisitedSet(uptoIdx){
@@ -687,7 +703,7 @@ function showStep(i){
   stepIndicator2.textContent = `line ${step.line}`;
   traceLog.querySelectorAll('.entry').forEach(el=>el.classList.toggle('current', parseInt(el.dataset.idx,10)===i));
   const cur = traceLog.querySelector('.entry.current');
-  if (cur) cur.scrollIntoView({block:'nearest'});
+  if (cur) scrollIntoContainer(cur, traceLog, 10);
   backBtn.disabled = i <= 0;
   stepBtn.disabled = i >= state.steps.length - 1;
   endBtn.disabled = i >= state.steps.length - 1;
