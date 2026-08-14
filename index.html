@@ -123,6 +123,10 @@
   .seo-content code{font-family:var(--mono);color:var(--teal);background:var(--panel-alt);padding:1px 5px;border-radius:4px;font-size:12.5px;}
   .seo-content ul{margin:6px 0 0;padding-left:20px;}
   .seo-content li{margin-bottom:6px;}
+  .constraints-table{width:100%;border-collapse:collapse;margin:14px 0 6px;font-size:12.5px;}
+  .constraints-table th,.constraints-table td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .constraints-table th{font-family:var(--mono);color:var(--text);font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:0.06em;}
+  .constraints-table td:first-child{color:var(--text);white-space:nowrap;}
   .site-footer{border-top:1px solid var(--border);padding:20px 24px 40px;text-align:center;font-size:12px;color:var(--muted);}
   .site-footer a{color:var(--teal);text-decoration:none;}
   .site-footer a:hover{text-decoration:underline;}
@@ -187,6 +191,21 @@
   <section>
     <h2>Supported tree structures</h2>
     <p>Works with classic binary search trees using <code>left</code>/<code>right</code> child attributes (or dict-style keys), and with n-ary trees using a <code>children</code> list. Node values are read from common attribute names like <code>val</code>, <code>value</code>, <code>data</code>, <code>key</code>, or <code>name</code>. No special base class or library import is required — most conventional tree implementations work without modification.</p>
+  </section>
+  <section>
+    <h2>Constraints — what your code needs to look like</h2>
+    <p>Class names don't matter at all — a <code>Node</code>, <code>TreeNode</code>, or <code>Vertex</code> class all work identically, since detection is based on attributes an object has, not what it's called. What does have to match are the attribute and variable names below:</p>
+    <table class="constraints-table">
+      <thead><tr><th>Thing</th><th>Must be named one of</th></tr></thead>
+      <tbody>
+        <tr><td>Binary children</td><td><code>left</code>/<code>right</code>, <code>l</code>/<code>r</code>, <code>left_child</code>/<code>right_child</code>, <code>leftChild</code>/<code>rightChild</code>, <code>lchild</code>/<code>rchild</code></td></tr>
+        <tr><td>N-ary children</td><td><code>children</code>, <code>kids</code>, <code>child_nodes</code>, or <code>nodes</code> (must be a list/tuple)</td></tr>
+        <tr><td>Node value</td><td><code>val</code>, <code>value</code>, <code>data</code>, <code>key</code>, <code>item</code>, <code>label</code>, <code>name</code>, or <code>v</code></td></tr>
+        <tr><td>Tree/root variable</td><td><code>root</code>, <code>tree</code>, <code>bst</code>, <code>head</code>, or <code>node</code> — at module level, inside a function, or as <code>.root</code>/<code>.head</code>/<code>.top</code> on a wrapper class</td></tr>
+        <tr><td>"Current" node per stack frame</td><td>a local variable named <code>self</code>, <code>node</code>, <code>current</code>, <code>cur</code>, <code>curr</code>, <code>n</code>, or <code>root</code> in that function</td></tr>
+      </tbody>
+    </table>
+    <p>If your code uses none of these — a child attribute called <code>kid1</code>/<code>kid2</code>, a value stored under <code>.age</code>, a root variable called <code>treeHead</code> — the tool won't find a tree to draw. It fails silently rather than erroring; you'll just see "no tree detected." There's no configuration option to add custom names, so the fix is either renaming to match one of the conventions above, or extending the tool's source if you're self-hosting it. This covers most textbook and interview-style BST implementations, but not every possible naming scheme.</p>
   </section>
   <section>
     <h2>Common uses</h2>
