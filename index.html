@@ -56,6 +56,13 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/python/python.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/edit/matchbrackets.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/edit/closebrackets.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/selection/active-line.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/display/placeholder.min.js"></script>
 <style>
   :root{
     --bg:#0E1218; --panel:#161C25; --panel-alt:#1C2430; --border:#28323F;
@@ -82,14 +89,36 @@
   .panel-head-left{display:flex;align-items:center;gap:8px;}
   #heapToggleWrap{display:none;align-items:center;gap:5px;font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;}
   #heapToggleWrap input{accent-color:var(--teal);cursor:pointer;}
-  textarea#codeInput{flex:0 0 auto;height:230px;background:var(--panel-alt);color:var(--text);border:none;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;padding:12px 14px;resize:vertical;outline:none;line-height:1.55;tab-size:4;}
+  .file-tab{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--panel-alt);border-bottom:1px solid var(--border);flex-shrink:0;font-family:var(--mono);font-size:12px;color:var(--text);}
+  .file-tab .dot{width:7px;height:7px;border-radius:50%;background:var(--border);flex-shrink:0;transition:background .15s;}
+  .file-tab.dirty .dot{background:var(--amber);}
+  .file-tab .lang-badge{margin-left:auto;font-size:10px;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;}
+  #codeInputHost{flex:0 0 auto;border-bottom:1px solid var(--border);}
+  .CodeMirror{height:230px;background:var(--panel-alt);color:var(--text);font-family:var(--mono);font-size:12.5px;line-height:1.55;}
+  .CodeMirror-gutters{background:var(--panel-alt);border-right:1px solid var(--border);}
+  .CodeMirror-linenumber{color:#3D4756;padding:0 8px 0 10px;}
+  .CodeMirror-cursor{border-left:1.5px solid var(--teal);}
+  .CodeMirror-selected{background:rgba(79,209,197,0.18)!important;}
+  .CodeMirror-activeline-background{background:rgba(255,255,255,0.03);}
+  .CodeMirror-matchingbracket{color:var(--amber)!important;font-weight:600;text-decoration:none;}
+  .cm-s-default .cm-keyword{color:var(--teal);}
+  .cm-s-default .cm-atom{color:var(--amber);}
+  .cm-s-default .cm-number{color:var(--amber);}
+  .cm-s-default .cm-string,.cm-s-default .cm-string-2{color:var(--green);}
+  .cm-s-default .cm-comment{color:var(--muted);font-style:italic;}
+  .cm-s-default .cm-def{color:var(--text);font-weight:600;}
+  .cm-s-default .cm-variable,.cm-s-default .cm-variable-2,.cm-s-default .cm-variable-3{color:var(--text);}
+  .cm-s-default .cm-property{color:var(--text);}
+  .cm-s-default .cm-operator{color:var(--muted);}
+  .cm-s-default .cm-builtin{color:var(--teal);}
+  .cm-s-default .cm-punctuation{color:var(--muted);}
+  .CodeMirror-placeholder{color:#3D4756!important;font-style:italic;}
   .controls{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
-  button,select.ctl{font-family:var(--sans);font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--panel-alt);color:var(--text);padding:6px 10px;border-radius:5px;cursor:pointer;transition:border-color .15s,color .15s;}
-  button:hover:not(:disabled),select.ctl:hover{border-color:var(--teal);color:var(--teal);}
+  button{font-family:var(--sans);font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--panel-alt);color:var(--text);padding:6px 10px;border-radius:5px;cursor:pointer;transition:border-color .15s,color .15s;}
+  button:hover:not(:disabled){border-color:var(--teal);color:var(--teal);}
   button:disabled{opacity:0.3;cursor:not-allowed;}
   button.primary{background:var(--teal);color:#0E1218;border-color:var(--teal);}
   button.primary:hover:not(:disabled){opacity:0.85;color:#0E1218;}
-  select.ctl{max-width:170px;}
   .speed-row{display:flex;align-items:center;gap:8px;padding:0 14px 10px;font-size:11px;color:var(--muted);font-family:var(--mono);}
   .speed-row input{flex:1;accent-color:var(--teal);}
   .hint{padding:8px 14px 10px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);line-height:1.5;}
@@ -159,18 +188,10 @@
   <main class="grid">
     <section class="panel">
       <div class="panel-head">Your Python Code</div>
-      <textarea id="codeInput" spellcheck="false"></textarea>
+      <div class="file-tab" id="fileTab"><span class="dot"></span>main.py<span class="lang-badge">Python 3</span></div>
+      <div id="codeInputHost"><textarea id="codeInput" spellcheck="false"></textarea></div>
       <div class="controls">
         <button id="runBtn" class="primary" disabled>▶ Run</button>
-        <select id="sampleSelect" class="ctl">
-          <option value="">Load starter…</option>
-          <option value="bst">Binary Search Tree</option>
-          <option value="linked_list">Linked List</option>
-          <option value="graph">Graph (BFS)</option>
-          <option value="heap">Min-Heap (array)</option>
-          <option value="stack">Stack (valid parens)</option>
-          <option value="queue">Queue (deque)</option>
-        </select>
       </div>
       <div class="controls" id="playControls" style="display:none;">
         <button id="backBtn">◀ Back</button>
@@ -184,7 +205,7 @@
         <input type="range" id="speedSlider" min="60" max="1000" value="350">
         <span id="speedLabel">350ms</span>
       </div>
-      <div class="hint">No naming conventions required — call your class, attributes, and variables anything you want. Each traced line, the tool looks at every live object in scope, walks its <em>actual</em> attribute/container references generically, and works out the shape from that reference graph itself: branching + no cycle → tree, every node degree ≤2 → linked list (open or circular, single or doubly), multiple parents or a real cycle → graph, plain list/dict/set of primitives → array/mapping/set (with a "view as tree" toggle for heaps). Whichever in-scope structure is largest and most actively being built is what's drawn — no dropdown needed. Starters in the dropdown below are unfinished skeletons, not working demos — fill in the <code>TODO</code>s and add driver code that builds and calls into your structure, or the tool will tell you it can't find any to trace.</div>
+      <div class="hint">No naming conventions required — call your class, attributes, and variables anything you want. Each traced line, the tool looks at every live object in scope, walks its <em>actual</em> attribute/container references generically, and works out the shape from that reference graph itself: branching + no cycle → tree, every node degree ≤2 → linked list (open or circular, single or doubly), multiple parents or a real cycle → graph, plain list/dict/set of primitives → array/mapping/set (with a "view as tree" toggle for heaps). Whichever in-scope structure is largest and most actively being built is what's drawn. Paste in your own implementation plus driver code that builds and calls into it — the tool will tell you if it can't find anything to trace.</div>
       <div class="panel-head">Source <b id="stepIndicator2"></b></div>
       <pre id="codeView"></pre>
     </section>
@@ -263,107 +284,6 @@
 </footer>
 
 <script>
-const SAMPLE_BST = `class Node:
-    def __init__(self, val):
-        self.val = val
-        self.left = None
-        self.right = None
-
-def insert(root, val):
-    # TODO: insert val into the BST rooted at root, return the (possibly new) root
-    pass
-
-def search(root, val):
-    # TODO: return the node containing val, or None if it isn't there
-    pass
-
-def delete(root, val):
-    # TODO: remove val from the BST and return the (possibly new) root
-    pass
-
-# TODO: driver code — build a tree and exercise it, e.g.
-# root = None
-# for v in [50, 30, 70, 20, 40, 60, 80]:
-#     root = insert(root, v)
-# found = search(root, 60)
-`;
-
-const SAMPLE_LL = `class ListNode:
-    def __init__(self, val):
-        self.val = val
-        self.next = None
-
-def build_list(values):
-    # TODO: build a linked list out of values and return the head node
-    pass
-
-def reverse_list(head):
-    # TODO: reverse the list in place and return the new head
-    pass
-
-# TODO: driver code — build a list and exercise it, e.g.
-# head = build_list([1, 2, 3, 4, 5])
-# head = reverse_list(head)
-`;
-
-const SAMPLE_GRAPH = `from collections import deque
-
-# TODO: fill in your adjacency list, e.g.
-# graph = {
-#     'A': ['B', 'C'],
-#     'B': ['A', 'D'],
-#     ...
-# }
-graph = {}
-
-def bfs(graph, start):
-    # TODO: implement breadth-first traversal from start, return visit order
-    pass
-
-# TODO: driver code — call bfs(graph, ...) and do something with the result
-`;
-
-const SAMPLE_HEAP = `def sift_down(heap, i, n):
-    # TODO: sift the element at index i down to restore the min-heap property
-    pass
-
-def build_heap(arr):
-    # TODO: turn arr into a valid heap using sift_down, return it
-    pass
-
-# TODO: driver code — build a heap and exercise it, e.g.
-# heap = [9, 4, 7, 1, 3, 6, 8, 2]
-# heap = build_heap(heap)
-`;
-
-const SAMPLE_STACK = `def is_valid(s):
-    stack = []
-    pairs = {')': '(', ']': '[', '}': '{'}
-    # TODO: push opening brackets onto stack, pop and match on closing ones
-    pass
-
-# TODO: driver code — call is_valid(...) with a string to check
-`;
-
-const SAMPLE_QUEUE = `from collections import deque
-
-def process_queue(tasks):
-    queue = deque(tasks)
-    # TODO: process items from queue one at a time (e.g. queue.popleft())
-    pass
-
-# TODO: driver code — call process_queue([...]) with some tasks
-`;
-
-const SAMPLES = {
-  bst: SAMPLE_BST,
-  linked_list: SAMPLE_LL,
-  graph: SAMPLE_GRAPH,
-  heap: SAMPLE_HEAP,
-  stack: SAMPLE_STACK,
-  queue: SAMPLE_QUEUE,
-};
-
 const DRIVER = `
 import sys, json, io, contextlib, traceback, types as _types
 from collections import deque
@@ -948,9 +868,8 @@ json.dumps({'steps': trace_steps, 'output': out_buf.getvalue(), 'error': error_m
 
 let pyodideInstance = null;
 const statusEl = document.getElementById('pyStatus');
-const codeInput = document.getElementById('codeInput');
 const runBtn = document.getElementById('runBtn');
-const sampleSelect = document.getElementById('sampleSelect');
+const fileTab = document.getElementById('fileTab');
 const codeView = document.getElementById('codeView');
 const outputBox = document.getElementById('outputBox');
 const watchList = document.getElementById('watchList');
@@ -974,7 +893,22 @@ const heapToggleWrap = document.getElementById('heapToggleWrap');
 const heapTreeToggle = document.getElementById('heapTreeToggle');
 const stepCaption = document.getElementById('stepCaption');
 
-codeInput.value = SAMPLES.bst;
+const cm = CodeMirror.fromTextArea(document.getElementById('codeInput'), {
+  mode: 'python',
+  lineNumbers: true,
+  indentUnit: 4,
+  tabSize: 4,
+  indentWithTabs: false,
+  matchBrackets: true,
+  autoCloseBrackets: true,
+  styleActiveLine: true,
+  placeholder: 'Paste your Python code here (with driver code that builds and exercises your structure), then hit Run…',
+});
+
+let lastRunCode = null;
+cm.on('change', () => {
+  fileTab.classList.toggle('dirty', lastRunCode !== null && cm.getValue() !== lastRunCode);
+});
 
 const state = { steps: [], idx: -1, timer: null, playing: false };
 
@@ -1458,11 +1392,6 @@ speedSlider.addEventListener('input', ()=>{
   speedLabel.textContent = speedSlider.value + 'ms';
   if (state.playing){ stopPlay(); startPlay(); }
 });
-sampleSelect.addEventListener('change', ()=>{
-  const key = sampleSelect.value;
-  if (key && SAMPLES[key]) codeInput.value = SAMPLES[key];
-  sampleSelect.value = '';
-});
 heapTreeToggle.addEventListener('change', ()=>{
   if (state.idx >= 0) renderStruct(state.steps[state.idx], state.idx);
 });
@@ -1473,7 +1402,9 @@ async function runCode(){
   runBtn.disabled = true;
   statusEl.textContent = 'running…'; statusEl.className = 'busy';
   outputBox.className = ''; outputBox.textContent = '';
-  const code = codeInput.value;
+  const code = cm.getValue();
+  lastRunCode = code;
+  fileTab.classList.remove('dirty');
   renderSourceLines(code);
   try{
     pyodideInstance.globals.set('__USER_CODE__', code);
@@ -1522,7 +1453,7 @@ async function runCode(){
 }
 runBtn.addEventListener('click', runCode);
 
-renderSourceLines(codeInput.value);
+renderSourceLines(cm.getValue());
 showEmptyMessage('paste code and hit Run to begin');
 </script>
 </body>
