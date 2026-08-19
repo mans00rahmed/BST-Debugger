@@ -108,8 +108,8 @@
   .node-text{fill:var(--text);font-family:var(--mono);font-size:12.5px;font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none;}
   .node-g.active .node-circle,.node-g.active .node-rect{stroke:var(--amber);stroke-width:3;filter:drop-shadow(0 0 8px rgba(242,177,85,.55));}
   .node-g.onpath .node-circle,.node-g.onpath .node-rect{stroke:var(--teal);stroke-width:2.5;fill:rgba(79,209,197,0.10);}
-  .node-g.visited .node-circle,.node-g.visited .node-rect{stroke:#3D4756;opacity:0.6;}
-  .node-g.visited .node-text{opacity:0.55;}
+  .node-g.visited .node-circle,.node-g.visited .node-rect{stroke:var(--muted);stroke-width:2;opacity:0.8;}
+  .node-g.visited .node-text{opacity:0.7;}
   .edge-lit{stroke:var(--teal);stroke-width:2.5;}
   .empty-msg{color:var(--muted);font-family:var(--mono);font-size:13px;padding:40px;text-align:center;}
   #arrayRow{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;justify-content:center;}
@@ -119,7 +119,12 @@
   .array-idx{font-family:var(--mono);font-size:10px;color:var(--muted);}
   .array-cell.active .array-val{border-color:var(--amber);box-shadow:0 0 8px rgba(242,177,85,.55);}
   .array-cell.onpath .array-val{border-color:var(--teal);background:rgba(79,209,197,0.10);}
-  .array-cell.visited .array-val{border-color:#3D4756;opacity:.6;}
+  .array-cell.visited .array-val{border-color:var(--muted);opacity:.7;}
+  #stepCaption{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:8px 14px;border-bottom:1px solid var(--border);min-height:14px;flex-shrink:0;transition:color .15s;}
+  #stepCaption:empty{padding:0;min-height:0;border-bottom:none;}
+  #stepCaption.changed{color:var(--amber);}
+  #stepCaption b{color:var(--teal);font-weight:600;}
+  #stepCaption.changed b{color:var(--amber);}
   .stack-tag{font-family:var(--mono);font-size:9.5px;color:var(--amber);letter-spacing:0.04em;}
   .queue-tag{font-family:var(--mono);font-size:10px;color:var(--muted);align-self:center;padding:0 4px;white-space:nowrap;}
   #stepIndicator{font-family:var(--mono);font-size:11px;color:var(--muted);padding:6px 14px;border-bottom:1px solid var(--border);}
@@ -132,6 +137,8 @@
   #traceLog .entry.current{color:var(--amber);border-left-color:var(--amber);background:rgba(242,177,85,0.07);}
   #outputBox{border-top:1px solid var(--border);max-height:120px;overflow-y:auto;padding:8px 14px;font-family:var(--mono);font-size:11px;color:var(--muted);white-space:pre-wrap;flex-shrink:0;}
   #outputBox.err{color:var(--red);}
+  #outputBox.warn{color:var(--amber);}
+  #pyStatus.warn{color:var(--amber);border-color:var(--amber);}
   .seo-content{max-width:860px;margin:0 auto;padding:48px 24px;font-size:14px;line-height:1.7;color:var(--muted);}
   .seo-content h2{font-family:var(--mono);font-size:16px;color:var(--text);margin:32px 0 10px;}
   .seo-content section:first-child h2{margin-top:0;}
@@ -162,7 +169,7 @@
       <div class="controls">
         <button id="runBtn" class="primary" disabled>▶ Run</button>
         <select id="sampleSelect" class="ctl">
-          <option value="">Load sample…</option>
+          <option value="">Load starter…</option>
           <option value="bst">Binary Search Tree</option>
           <option value="linked_list">Linked List</option>
           <option value="graph">Graph (BFS)</option>
@@ -183,7 +190,7 @@
         <input type="range" id="speedSlider" min="60" max="1000" value="350">
         <span id="speedLabel">350ms</span>
       </div>
-      <div class="hint">Auto-detects, on objects or dicts: binary trees (<code>left</code>/<code>right</code>), n-ary trees (<code>children</code> list), linked lists (<code>next</code>/<code>prev</code>), graphs (a <code>neighbors</code>/<code>adj</code> list on node objects, or a plain <code>{key: [neighbors]}</code> adjacency dict), and plain lists of numbers/strings as an array, a <code>stack</code>/<code>queue</code> (incl. <code>collections.deque</code>), or a min/max-heap — toggle "view as tree" on an array to see the implicit heap tree. A conventionally-named variable anywhere in your code (module level, inside a function, or as <code>.root</code> on a wrapper class) is auto-detected as the structure to draw.</div>
+      <div class="hint">Auto-detects, on objects or dicts: binary trees (<code>left</code>/<code>right</code>), n-ary trees (<code>children</code> list), linked lists (<code>next</code>/<code>prev</code>), graphs (a <code>neighbors</code>/<code>adj</code> list on node objects, or a plain <code>{key: [neighbors]}</code> adjacency dict), and plain lists of numbers/strings as an array, a <code>stack</code>/<code>queue</code> (incl. <code>collections.deque</code>), or a min/max-heap — toggle "view as tree" on an array to see the implicit heap tree. There's no dropdown to pick a structure type: whichever conventionally-named variable your code builds (module level, inside a function, or as <code>.root</code> on a wrapper class) is what gets drawn. Starters in the dropdown below are unfinished skeletons, not working demos — fill in the <code>TODO</code>s and add driver code that builds and calls into your structure, or the tool will tell you it can't find any to trace.</div>
       <div class="panel-head">Source <b id="stepIndicator2"></b></div>
       <pre id="codeView"></pre>
     </section>
@@ -193,6 +200,7 @@
         <span class="panel-head-left">Structure <span id="stepIndicator"></span></span>
         <label id="heapToggleWrap"><input type="checkbox" id="heapTreeToggle">view as tree</label>
       </div>
+      <div id="stepCaption"></div>
       <div id="treeScroll">
         <div id="emptyMsg" class="empty-msg">paste code and hit Run to begin</div>
         <div id="structInner" style="display:none;">
@@ -276,51 +284,22 @@ const SAMPLE_BST = `class Node:
         self.right = None
 
 def insert(root, val):
-    if root is None:
-        return Node(val)
-    if val < root.val:
-        root.left = insert(root.left, val)
-    elif val > root.val:
-        root.right = insert(root.right, val)
-    return root
+    # TODO: insert val into the BST rooted at root, return the (possibly new) root
+    pass
 
 def search(root, val):
-    if root is None:
-        return None
-    if val == root.val:
-        return root
-    if val < root.val:
-        return search(root.left, val)
-    return search(root.right, val)
+    # TODO: return the node containing val, or None if it isn't there
+    pass
 
 def delete(root, val):
-    if root is None:
-        return None
-    if val < root.val:
-        root.left = delete(root.left, val)
-    elif val > root.val:
-        root.right = delete(root.right, val)
-    else:
-        if root.left is None:
-            return root.right
-        if root.right is None:
-            return root.left
-        succ = root.right
-        while succ.left is not None:
-            succ = succ.left
-        root.val = succ.val
-        root.right = delete(root.right, succ.val)
-    return root
+    # TODO: remove val from the BST and return the (possibly new) root
+    pass
 
-root = None
-for v in [50, 30, 70, 20, 40, 60, 80]:
-    root = insert(root, v)
-
-found = search(root, 60)
-print("search(60):", "found" if found else "not found")
-
-root = delete(root, 70)
-print("deleted 70")
+# TODO: driver code — build a tree and exercise it, e.g.
+# root = None
+# for v in [50, 30, 70, 20, 40, 60, 80]:
+#     root = insert(root, v)
+# found = search(root, 60)
 `;
 
 const SAMPLE_LL = `class ListNode:
@@ -329,125 +308,65 @@ const SAMPLE_LL = `class ListNode:
         self.next = None
 
 def build_list(values):
-    head = None
-    tail = None
-    for v in values:
-        node = ListNode(v)
-        if head is None:
-            head = node
-            tail = node
-        else:
-            tail.next = node
-            tail = node
-    return head
+    # TODO: build a linked list out of values and return the head node
+    pass
 
 def reverse_list(head):
-    prev = None
-    curr = head
-    while curr is not None:
-        nxt = curr.next
-        curr.next = prev
-        prev = curr
-        curr = nxt
-    return prev
+    # TODO: reverse the list in place and return the new head
+    pass
 
-def print_list(head):
-    vals = []
-    node = head
-    while node is not None:
-        vals.append(str(node.val))
-        node = node.next
-    print(" -> ".join(vals))
-
-head = build_list([1, 2, 3, 4, 5])
-print("original:")
-print_list(head)
-
-head = reverse_list(head)
-print("reversed:")
-print_list(head)
+# TODO: driver code — build a list and exercise it, e.g.
+# head = build_list([1, 2, 3, 4, 5])
+# head = reverse_list(head)
 `;
 
 const SAMPLE_GRAPH = `from collections import deque
 
-graph = {
-    'A': ['B', 'C'],
-    'B': ['A', 'D', 'E'],
-    'C': ['A', 'F'],
-    'D': ['B'],
-    'E': ['B', 'F'],
-    'F': ['C', 'E'],
-}
+# TODO: fill in your adjacency list, e.g.
+# graph = {
+#     'A': ['B', 'C'],
+#     'B': ['A', 'D'],
+#     ...
+# }
+graph = {}
 
 def bfs(graph, start):
-    visited = {start}
-    order = []
-    queue = deque([start])
-    while queue:
-        node = queue.popleft()
-        order.append(node)
-        for neighbor in graph[node]:
-            if neighbor not in visited:
-                visited.add(neighbor)
-                queue.append(neighbor)
-    return order
+    # TODO: implement breadth-first traversal from start, return visit order
+    pass
 
-result = bfs(graph, 'A')
-print("BFS order:", result)
+# TODO: driver code — call bfs(graph, ...) and do something with the result
 `;
 
 const SAMPLE_HEAP = `def sift_down(heap, i, n):
-    smallest = i
-    left = 2 * i + 1
-    right = 2 * i + 2
-    if left < n and heap[left] < heap[smallest]:
-        smallest = left
-    if right < n and heap[right] < heap[smallest]:
-        smallest = right
-    if smallest != i:
-        heap[i], heap[smallest] = heap[smallest], heap[i]
-        sift_down(heap, smallest, n)
+    # TODO: sift the element at index i down to restore the min-heap property
+    pass
 
 def build_heap(arr):
-    n = len(arr)
-    for i in range(n // 2 - 1, -1, -1):
-        sift_down(arr, i, n)
-    return arr
+    # TODO: turn arr into a valid heap using sift_down, return it
+    pass
 
-heap = [9, 4, 7, 1, 3, 6, 8, 2]
-print("before:", heap)
-heap = build_heap(heap)
-print("after (min-heap):", heap)
+# TODO: driver code — build a heap and exercise it, e.g.
+# heap = [9, 4, 7, 1, 3, 6, 8, 2]
+# heap = build_heap(heap)
 `;
 
 const SAMPLE_STACK = `def is_valid(s):
     stack = []
     pairs = {')': '(', ']': '[', '}': '{'}
-    for i, ch in enumerate(s):
-        if ch in '([{':
-            stack.append(ch)
-        else:
-            if not stack or stack[-1] != pairs[ch]:
-                return False
-            stack.pop()
-    return not stack
+    # TODO: push opening brackets onto stack, pop and match on closing ones
+    pass
 
-result = is_valid("{[()]}")
-print("valid:", result)
+# TODO: driver code — call is_valid(...) with a string to check
 `;
 
 const SAMPLE_QUEUE = `from collections import deque
 
 def process_queue(tasks):
     queue = deque(tasks)
-    completed = []
-    while queue:
-        task = queue.popleft()
-        completed.append(task)
-        print("processed:", task)
-    return completed
+    # TODO: process items from queue one at a time (e.g. queue.popleft())
+    pass
 
-process_queue(["email", "backup", "report", "cleanup"])
+# TODO: driver code — call process_queue([...]) with some tasks
 `;
 
 const SAMPLES = {
@@ -843,6 +762,7 @@ def tracer(frame, event, arg):
         trace_steps.append({
             'line': frame.f_lineno,
             'func': frame.f_code.co_name,
+            'isRealCall': (frame.f_code.co_flags & 0x03) == 0x03,
             'locals': safe_locals(frame),
             'struct': snap,
             'stack': path,
@@ -891,6 +811,7 @@ const arrayRow = document.getElementById('arrayRow');
 const treeSvg = document.getElementById('treeSvg');
 const heapToggleWrap = document.getElementById('heapToggleWrap');
 const heapTreeToggle = document.getElementById('heapTreeToggle');
+const stepCaption = document.getElementById('stepCaption');
 
 codeInput.value = SAMPLES.bst;
 
@@ -948,6 +869,58 @@ function computeVisitedSet(uptoIdx){
     if (st.active !== null && st.active !== undefined) seen.add(String(st.active));
   }
   return seen;
+}
+
+function fmt(v){
+  return typeof v === 'string' ? v : JSON.stringify(v);
+}
+
+function describeChange(prevStep, curStep){
+  const prev = prevStep ? prevStep.struct : null;
+  const cur = curStep.struct;
+  const quiet = (text) => ({ text, changed: false });
+  const loud = (text) => ({ text, changed: true });
+
+  if (!cur) return quiet(prev ? 'structure is no longer reachable from this line' : "no structure built yet — this line doesn't touch it");
+  if (!prev || prev.kind !== cur.kind){
+    if (cur.kind === 'array' || cur.kind === 'stack' || cur.kind === 'queue'){
+      return loud(`<b>${cur.kind}</b> detected — ${cur.items.length} item${cur.items.length===1?'':'s'}`);
+    }
+    const n = cur.nodes ? Object.keys(cur.nodes).length : 0;
+    return loud(`<b>${cur.kind.replace('_',' ')}</b> detected — ${n} node${n===1?'':'s'}`);
+  }
+  if (cur.kind === 'array' || cur.kind === 'stack' || cur.kind === 'queue'){
+    const a = prev.items, b = cur.items;
+    if (b.length > a.length){
+      const added = b[b.length-1];
+      const verb = cur.kind === 'stack' ? 'pushed' : cur.kind === 'queue' ? 'enqueued' : 'appended';
+      return loud(`${verb} <b>${fmt(added)}</b>`);
+    }
+    if (b.length < a.length){
+      return loud(cur.kind === 'stack' ? 'popped from the stack' : cur.kind === 'queue' ? 'dequeued from the front' : 'removed an item');
+    }
+    for (let i=0;i<b.length;i++){
+      if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return loud(`index <b>${i}</b> changed: ${fmt(a[i])} → <b>${fmt(b[i])}</b>`);
+    }
+    return quiet(`no change to the ${cur.kind} on this line`);
+  }
+  const prevIds = new Set(Object.keys(prev.nodes||{}));
+  const curIds = new Set(Object.keys(cur.nodes||{}));
+  const added = [...curIds].filter(id => !prevIds.has(id));
+  if (added.length){
+    return loud(`created a new node — value <b>${fmt(cur.nodes[added[0]].value)}</b>`);
+  }
+  const removed = [...prevIds].filter(id => !curIds.has(id));
+  if (removed.length) return loud('a node was removed from the structure');
+  for (const id of curIds){
+    const a = prev.nodes[id], b = cur.nodes[id];
+    if (!a) continue;
+    if (JSON.stringify(a.value) !== JSON.stringify(b.value)) return loud(`node value changed: ${fmt(a.value)} → <b>${fmt(b.value)}</b>`);
+    if (JSON.stringify(a.children) !== JSON.stringify(b.children)) return loud(`linked a child onto node <b>${fmt(b.value)}</b>`);
+    if (a.next !== b.next) return loud(`updated node <b>${fmt(b.value)}</b>'s next pointer`);
+    if (JSON.stringify(a.neighbors) !== JSON.stringify(b.neighbors)) return loud(`node <b>${fmt(b.value)}</b> gained a connection`);
+  }
+  return quiet('no structural change on this line');
 }
 
 function childrenOf(snap, idKey){
@@ -1257,6 +1230,9 @@ function showStep(i){
   highlightLine(step.line);
   renderLocals(step.locals, step.func);
   renderStruct(step, i);
+  const change = describeChange(i > 0 ? state.steps[i-1] : null, step);
+  stepCaption.innerHTML = change.text;
+  stepCaption.classList.toggle('changed', change.changed);
   stepIndicator.textContent = `step ${i+1} / ${state.steps.length}`;
   stepIndicator2.textContent = `line ${step.line}`;
   traceLog.querySelectorAll('.entry').forEach(el=>el.classList.toggle('current', parseInt(el.dataset.idx,10)===i));
@@ -1314,19 +1290,34 @@ async function runCode(){
     state.steps = data.steps || [];
     state.idx = -1;
     buildTraceLog();
-    if (data.error){
+    const hasDefs = /^\s*(def|class)\s+\w/m.test(code);
+    const calledUserFunc = state.steps.some(s => s.isRealCall);
+    const noDriver = !data.error && hasDefs && !calledUserFunc;
+    if (noDriver){
+      outputBox.className = 'warn';
+      outputBox.textContent = 'No driver code detected — your classes/functions are defined but never called. Add code that builds your structure and exercises it (create nodes, call your functions, run a traversal), then hit Run again.'
+        + (data.output ? '\n\n' + data.output : '');
+      statusEl.textContent = 'no driver code — nothing was exercised';
+      statusEl.className = 'warn';
+    } else if (data.error){
       outputBox.className = 'err';
       outputBox.textContent = (data.output ? data.output + '\n' : '') + data.error;
+      statusEl.textContent = `finished with error — ${state.steps.length} steps captured`;
+      statusEl.className = 'err';
     } else {
+      outputBox.className = '';
       outputBox.textContent = data.output || '(no output)';
+      statusEl.textContent = `done — ${state.steps.length} steps captured`;
+      statusEl.className = 'ready';
     }
-    statusEl.textContent = data.error
-      ? `finished with error — ${state.steps.length} steps captured`
-      : `done — ${state.steps.length} steps captured`;
-    statusEl.className = data.error ? 'err' : 'ready';
     playControls.style.display = 'flex';
-    if (state.steps.length){ showStep(0); }
-    else { showEmptyMessage('no structure detected yet — run your code'); renderLocals({}, null); }
+    if (state.steps.length){
+      showStep(0);
+      if (!noDriver) startPlay();
+    } else {
+      showEmptyMessage('no structure detected yet — run your code');
+      renderLocals({}, null);
+    }
   } catch(e){
     statusEl.textContent = 'run failed: ' + e.message;
     statusEl.className = 'err';
