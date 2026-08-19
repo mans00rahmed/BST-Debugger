@@ -113,7 +113,6 @@
   .edge-lit{stroke:var(--teal);stroke-width:2.5;}
   .empty-msg{color:var(--muted);font-family:var(--mono);font-size:13px;padding:40px;text-align:center;}
   #arrayRow{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;justify-content:center;}
-  #arrayRow.stack-col{flex-direction:column-reverse;align-items:center;}
   .array-cell{display:flex;flex-direction:column;align-items:center;gap:4px;}
   .array-val{min-width:44px;height:44px;padding:0 6px;display:flex;align-items:center;justify-content:center;background:var(--panel-alt);border:2px solid var(--border);border-radius:6px;font-family:var(--mono);font-weight:600;color:var(--text);transition:border-color .2s,background .2s;}
   .array-idx{font-family:var(--mono);font-size:10px;color:var(--muted);}
@@ -125,7 +124,6 @@
   #stepCaption.changed{color:var(--amber);}
   #stepCaption b{color:var(--teal);font-weight:600;}
   #stepCaption.changed b{color:var(--amber);}
-  .stack-tag{font-family:var(--mono);font-size:9.5px;color:var(--amber);letter-spacing:0.04em;}
   .queue-tag{font-family:var(--mono);font-size:10px;color:var(--muted);align-self:center;padding:0 4px;white-space:nowrap;}
   #stepIndicator{font-family:var(--mono);font-size:11px;color:var(--muted);padding:6px 14px;border-bottom:1px solid var(--border);}
   #watchList{padding:12px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px;flex-shrink:0;max-height:180px;overflow-y:auto;}
@@ -146,10 +144,6 @@
   .seo-content code{font-family:var(--mono);color:var(--teal);background:var(--panel-alt);padding:1px 5px;border-radius:4px;font-size:12.5px;}
   .seo-content ul{margin:6px 0 0;padding-left:20px;}
   .seo-content li{margin-bottom:6px;}
-  .constraints-table{width:100%;border-collapse:collapse;margin:14px 0 6px;font-size:12.5px;}
-  .constraints-table th,.constraints-table td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
-  .constraints-table th{font-family:var(--mono);color:var(--text);font-weight:600;text-transform:uppercase;font-size:10.5px;letter-spacing:0.06em;}
-  .constraints-table td:first-child{color:var(--text);white-space:nowrap;}
   .site-footer{border-top:1px solid var(--border);padding:20px 24px 40px;text-align:center;font-size:12px;color:var(--muted);}
   .site-footer a{color:var(--teal);text-decoration:none;}
   .site-footer a:hover{text-decoration:underline;}
@@ -190,7 +184,7 @@
         <input type="range" id="speedSlider" min="60" max="1000" value="350">
         <span id="speedLabel">350ms</span>
       </div>
-      <div class="hint">Auto-detects, on objects or dicts: binary trees (<code>left</code>/<code>right</code>), n-ary trees (<code>children</code> list), linked lists (<code>next</code>/<code>prev</code>), graphs (a <code>neighbors</code>/<code>adj</code> list on node objects, or a plain <code>{key: [neighbors]}</code> adjacency dict), and plain lists of numbers/strings as an array, a <code>stack</code>/<code>queue</code> (incl. <code>collections.deque</code>), or a min/max-heap — toggle "view as tree" on an array to see the implicit heap tree. There's no dropdown to pick a structure type: whichever conventionally-named variable your code builds (module level, inside a function, or as <code>.root</code> on a wrapper class) is what gets drawn. Starters in the dropdown below are unfinished skeletons, not working demos — fill in the <code>TODO</code>s and add driver code that builds and calls into your structure, or the tool will tell you it can't find any to trace.</div>
+      <div class="hint">No naming conventions required — call your class, attributes, and variables anything you want. Each traced line, the tool looks at every live object in scope, walks its <em>actual</em> attribute/container references generically, and works out the shape from that reference graph itself: branching + no cycle → tree, every node degree ≤2 → linked list (open or circular, single or doubly), multiple parents or a real cycle → graph, plain list/dict/set of primitives → array/mapping/set (with a "view as tree" toggle for heaps). Whichever in-scope structure is largest and most actively being built is what's drawn — no dropdown needed. Starters in the dropdown below are unfinished skeletons, not working demos — fill in the <code>TODO</code>s and add driver code that builds and calls into your structure, or the tool will tell you it can't find any to trace.</div>
       <div class="panel-head">Source <b id="stepIndicator2"></b></div>
       <pre id="codeView"></pre>
     </section>
@@ -227,38 +221,30 @@
   </section>
   <section>
     <h2>How it works</h2>
-    <p>The tool uses Pyodide, a full CPython runtime compiled to WebAssembly, so your code runs as real Python — not a simulation or reimplementation. As execution proceeds, a line-level tracer inspects your live objects after every statement, automatically detects which variable holds your structure and what kind of structure it is, and reconstructs it by walking whatever attributes or contents your code uses. The result is a step-by-step debugger that shows the actual line executing, the live local variables in the current stack frame, the structure redrawn at every step, and the real traversal path highlighted as it moves through the structure.</p>
+    <p>The tool uses Pyodide, a full CPython runtime compiled to WebAssembly, so your code runs as real Python — not a simulation or reimplementation. As execution proceeds, a line-level tracer inspects every live object reachable from your code after each statement and walks its <em>actual</em> attributes and container contents generically — whatever they're called — to build the real reference graph your code has constructed. It then classifies that graph purely from its shape: how many parents each node has, whether there's a cycle, whether every node branches to at most one further node. No attribute name, class name, or variable name is ever pattern-matched. The result is a step-by-step debugger that shows the actual line executing, the live local variables in the current stack frame, the structure redrawn at every step, and the real traversal path highlighted as it moves through the structure.</p>
   </section>
   <section>
     <h2>Supported data structures</h2>
+    <p>Nothing here is keyed off what you name anything — these are pure descriptions of shape, discovered from the live object graph itself:</p>
     <ul>
-      <li><strong>Binary search trees</strong> using <code>left</code>/<code>right</code> child attributes (or dict-style keys)</li>
-      <li><strong>N-ary trees</strong> using a <code>children</code> list</li>
-      <li><strong>Linked lists</strong>, singly or doubly, using <code>next</code>/<code>prev</code> attributes — cycles are detected and drawn</li>
-      <li><strong>Graphs</strong>, either node objects exposing a <code>neighbors</code>/<code>adj</code> list, or a plain adjacency dict like <code>{'A': ['B', 'C']}</code></li>
-      <li><strong>Heaps and arrays</strong> — any plain list of numbers/strings, with an optional toggle to also view it as the implicit binary tree a heap represents</li>
-      <li><strong>Stacks and queues</strong> — a list or <code>collections.deque</code> named accordingly, drawn as a vertical stack with a "top" marker or a horizontal queue with front/rear labels</li>
+      <li><strong>Trees</strong> — any acyclic structure where every node (other than the root) is reached from exactly one other node, however many children it has and whatever its child attributes/lists are called. Binary and n-ary trees both fall out of the same rule.</li>
+      <li><strong>Linked lists</strong> — a chain where every node connects to at most one further node; open or circular, singly or doubly (a doubly-linked back-reference is detected as two objects pointing at each other, not by an attribute named <code>prev</code>).</li>
+      <li><strong>Graphs</strong> — anything with a real cycle or a node reachable from more than one parent: node objects referencing each other however you named the reference, or a plain adjacency dict like <code>{'A': ['B', 'C']}</code>.</li>
+      <li><strong>Arrays and heaps</strong> — any plain list/tuple of numbers or strings, with a toggle to also view it as the implicit binary tree a heap represents.</li>
+      <li><strong>Mappings and sets</strong> — a plain <code>dict</code> or <code>set</code>/<code>frozenset</code> of primitive values, shown as key→value chips or a value cluster.</li>
+      <li><strong>Queues</strong> — a <code>collections.deque</code> of primitives specifically (an actual type distinction, not a naming guess), shown with front/rear labels. A plain list used as a stack or queue just renders as an array — the push/pop/enqueue/dequeue behavior is fully visible in how it grows and shrinks.</li>
     </ul>
-    <p>Node values are read from common attribute names like <code>val</code>, <code>value</code>, <code>data</code>, <code>key</code>, or <code>name</code>. No special base class or library import is required — most conventional implementations work without modification.</p>
+    <p>A node's on-screen label is built the same shape-first way: whichever of its own attributes hold plain values (numbers, strings, booleans) get shown; attributes holding other objects become the structural connections instead. <code>None</code>-valued attributes are left out of the label, since on a node object that almost always means "link not set" rather than meaningful data.</p>
   </section>
   <section>
-    <h2>Constraints — what your code needs to look like</h2>
-    <p>Class names don't matter at all — a <code>Node</code>, <code>TreeNode</code>, or <code>Vertex</code> class all work identically, since detection is based on attributes an object has, not what it's called. What does have to match are the attribute and variable names below:</p>
-    <table class="constraints-table">
-      <thead><tr><th>Thing</th><th>Must be named one of</th></tr></thead>
-      <tbody>
-        <tr><td>Binary children</td><td><code>left</code>/<code>right</code>, <code>l</code>/<code>r</code>, <code>left_child</code>/<code>right_child</code>, <code>leftChild</code>/<code>rightChild</code>, <code>lchild</code>/<code>rchild</code></td></tr>
-        <tr><td>N-ary children</td><td><code>children</code>, <code>kids</code>, <code>child_nodes</code>, or <code>nodes</code> (must be a list/tuple)</td></tr>
-        <tr><td>Linked list pointers</td><td><code>next</code>/<code>nxt</code>/<code>next_node</code>/<code>succ</code>, optional <code>prev</code>/<code>previous</code>/<code>prev_node</code>/<code>pred</code> for doubly linked</td></tr>
-        <tr><td>Graph neighbors</td><td><code>neighbors</code>, <code>neighbours</code>, <code>adj</code>, <code>adjacent</code>, <code>edges</code>, <code>links</code>, or <code>connections</code> as a list on each node object — or a top-level dict mapping keys to lists of neighbor keys</td></tr>
-        <tr><td>Node value</td><td><code>val</code>, <code>value</code>, <code>data</code>, <code>key</code>, <code>item</code>, <code>label</code>, <code>name</code>, or <code>v</code></td></tr>
-        <tr><td>Structure/root variable</td><td><code>root</code>, <code>tree</code>, <code>bst</code>, <code>head</code>, <code>node</code>, <code>graph</code>, <code>g</code>, <code>start</code>, <code>heap</code>, <code>pq</code>, <code>arr</code>, <code>array</code>, <code>lst</code> — at module level, inside a function, or as <code>.root</code>/<code>.head</code>/<code>.top</code> on a wrapper class</td></tr>
-        <tr><td>Stack / queue variable</td><td><code>stack</code>/<code>stk</code>/<code>st</code> for a vertical stack view; <code>queue</code>/<code>q</code>/<code>fifo</code>/<code>dq</code>, or any <code>collections.deque</code> regardless of name, for a queue view</td></tr>
-        <tr><td>"Current" node per stack frame</td><td>a local variable named <code>self</code>, <code>node</code>, <code>current</code>, <code>cur</code>, <code>curr</code>, <code>temp</code>, <code>ptr</code>, <code>n</code>, or <code>root</code> in that function</td></tr>
-        <tr><td>"Current" index (arrays/heaps/stacks/queues)</td><td>a local variable named <code>i</code>, <code>idx</code>, <code>index</code>, <code>j</code>, <code>k</code>, or <code>pos</code> holding an integer in range</td></tr>
-      </tbody>
-    </table>
-    <p>If your code uses none of these — a child attribute called <code>kid1</code>/<code>kid2</code>, a value stored under <code>.age</code>, a root variable called <code>treeHead</code> — the tool won't find a structure to draw. It fails silently rather than erroring; you'll just see "no structure detected." There's no configuration option to add custom names, so the fix is either renaming to match one of the conventions above, or extending the tool's source if you're self-hosting it. This covers most textbook and interview-style implementations, but not every possible naming scheme.</p>
+    <h2>Limits of a fully generic approach</h2>
+    <p>Detecting shape instead of names removes every constraint on what you can call things, but it does trade away a few things a naming convention could otherwise tell it for free:</p>
+    <ul>
+      <li>When several structures are live at once, the tool shows whichever one is largest and most actively being mutated. A big, unrelated lookup table can occasionally win a tie against a small structure that hasn't grown yet — it'll switch over once the real one gets bigger.</li>
+      <li>For a doubly-linked list or a genuinely circular structure, there's no way to know which node you consider "the start" without a naming hint — the tool picks whichever end/point it happens to track, which may not always match your mental picture of head-to-tail.</li>
+      <li>A small graph whose edges happen to form a single loop (a "ring") is mathematically identical to a circular linked list from the shape alone, so it may render as a circular chain rather than a general graph layout.</li>
+    </ul>
+    <p>None of these produce wrong data — the nodes, values, and connections shown are always exactly what your code built. They can occasionally affect which structure gets picked or which end a chain is drawn from.</p>
   </section>
   <section>
     <h2>Common uses</h2>
@@ -379,87 +365,36 @@ const SAMPLES = {
 };
 
 const DRIVER = `
-import sys, json, io, contextlib, traceback
+import sys, json, io, contextlib, traceback, types as _types
 from collections import deque
 
 MAX_STEPS = 4000
+MAX_NODES = 400
+SIZE_PROBE_CAP = 60
 trace_steps = []
 user_globals = {}
+_root_pick = {'name': None, 'scope': None}
 
-VALUE_ATTRS = ('val', 'value', 'data', 'key', 'item', 'label', 'name', 'v')
-LEFT_ATTRS = ('left', 'l', 'left_child', 'leftChild', 'lchild')
-RIGHT_ATTRS = ('right', 'r', 'right_child', 'rightChild', 'rchild')
-CHILDREN_LIST_ATTRS = ('children', 'kids', 'child_nodes', 'nodes')
-NEXT_ATTRS = ('next', 'nxt', 'next_node', 'succ')
-PREV_ATTRS = ('prev', 'previous', 'prev_node', 'pred')
-NEIGHBOR_LIST_ATTRS = ('neighbors', 'neighbours', 'adj', 'adjacent', 'edges', 'links', 'connections')
+PRIMITIVE_TYPES = (int, float, str, bool, bytes, type(None), complex)
 
-STRUCT_NAMES = ('root', 'tree', 'bst', 'head', 'node', 'graph', 'g', 'start',
-                'heap', 'pq', 'stack', 'stk', 'queue', 'q', 'fifo', 'dq',
-                'arr', 'array', 'lst', 'list_', 'items', 'dll', 'll')
-STACK_NAMES = ('stack', 'stk', 'st')
-QUEUE_NAMES = ('queue', 'q', 'fifo', 'dq')
-ROOT_ATTR_NAMES = ('root', 'head', 'top')
 
-def get_val(obj):
-    for attr in VALUE_ATTRS:
-        if hasattr(obj, attr):
-            try:
-                return getattr(obj, attr)
-            except Exception:
-                pass
-        if isinstance(obj, dict) and attr in obj:
-            return obj[attr]
-    return repr(obj)
+def is_primitive(v):
+    return v is None or isinstance(v, PRIMITIVE_TYPES)
 
-def _has_attr(obj, names):
-    if isinstance(obj, dict):
-        return any(n in obj for n in names)
-    return any(hasattr(obj, n) for n in names)
 
-def _get_attr(obj, names):
-    for n in names:
-        if isinstance(obj, dict) and n in obj:
-            return obj[n]
-        if hasattr(obj, n):
-            return getattr(obj, n)
-    return None
+_NOT_TRACKABLE_TYPES = (_types.FunctionType, _types.BuiltinFunctionType, _types.ModuleType,
+                         _types.MethodType, _types.BuiltinMethodType, type)
 
-def _has_tree_shape(obj):
-    return _has_attr(obj, CHILDREN_LIST_ATTRS) or _has_attr(obj, LEFT_ATTRS) or _has_attr(obj, RIGHT_ATTRS)
 
-def _has_ll_shape(obj):
-    return _has_attr(obj, NEXT_ATTRS)
-
-def _has_graph_shape(obj):
-    v = _get_attr(obj, NEIGHBOR_LIST_ATTRS)
-    return isinstance(v, (list, tuple, set, dict))
-
-def is_node_like(obj):
-    if obj is None or isinstance(obj, (int, float, str, bool, list, tuple, set, deque)):
+def is_trackable(v):
+    if is_primitive(v):
         return False
-    return _has_tree_shape(obj) or _has_ll_shape(obj) or _has_graph_shape(obj)
+    if isinstance(v, (list, tuple, dict, set, frozenset, deque)):
+        return len(v) > 0
+    if isinstance(v, _NOT_TRACKABLE_TYPES):
+        return False
+    return hasattr(v, '__dict__') or hasattr(type(v), '__slots__')
 
-def _list_children_attr(obj):
-    for name in CHILDREN_LIST_ATTRS:
-        if hasattr(obj, name):
-            v = getattr(obj, name)
-            if isinstance(v, (list, tuple)):
-                return list(v)
-        if isinstance(obj, dict) and name in obj and isinstance(obj[name], (list, tuple)):
-            return list(obj[name])
-    return None
-
-def get_children(obj):
-    lst = _list_children_attr(obj)
-    if lst is not None:
-        return lst
-    kids = []
-    if _has_attr(obj, LEFT_ATTRS):
-        kids.append(_get_attr(obj, LEFT_ATTRS))
-    if _has_attr(obj, RIGHT_ATTRS):
-        kids.append(_get_attr(obj, RIGHT_ATTRS))
-    return kids
 
 def jsafe(v):
     try:
@@ -468,168 +403,343 @@ def jsafe(v):
     except Exception:
         return repr(v)
 
-def _looks_like_adjacency_dict(obj):
-    if not isinstance(obj, dict) or not obj:
+
+def _own_items(obj):
+    d = getattr(obj, '__dict__', None)
+    if d:
+        return [(k, v) for k, v in d.items() if not k.startswith('__')]
+    out = []
+    for k in getattr(type(obj), '__slots__', ()) or ():
+        if hasattr(obj, k):
+            out.append((k, getattr(obj, k)))
+    return out
+
+
+def _looks_like_adjacency_dict(d):
+    if not isinstance(d, dict) or not d:
         return False
-    listy = sum(1 for v in obj.values() if isinstance(v, (list, tuple, set)))
-    return listy >= max(1, int(len(obj) * 0.6))
+    listy = sum(1 for v in d.values() if isinstance(v, (list, tuple, set)))
+    return listy >= max(1, int(len(d) * 0.6))
 
-def classify(obj, name=None):
-    if obj is None:
-        return None
+
+def generic_refs(obj):
+    """Outgoing structural references as (label, child_obj), purely from shape -- no naming assumptions."""
+    refs = []
     if isinstance(obj, dict):
-        if _looks_like_adjacency_dict(obj):
-            return 'graph_dict'
-        if is_node_like(obj):
-            if _has_tree_shape(obj):
-                return 'tree'
-            if _has_ll_shape(obj):
-                return 'linked_list'
-            if _has_graph_shape(obj):
-                return 'graph'
-        return None
+        adj = _looks_like_adjacency_dict(obj)
+        keyset = set(obj.keys()) if adj else None
+        for k, v in list(obj.items())[:MAX_NODES]:
+            if is_trackable(v):
+                refs.append((str(k), v))
+            elif adj and isinstance(v, (list, tuple, set)):
+                for item in list(v)[:MAX_NODES]:
+                    if item in keyset and item != k:
+                        refs.append((f'{k}->{item}', item))
+        return refs
     if isinstance(obj, (list, tuple, deque)):
-        items = list(obj)
-        if not items:
-            return None
-        if any(is_node_like(x) for x in items[:8]):
-            return None
-        if not all(isinstance(x, (int, float, str, bool)) for x in items[:20]):
-            return None
-        nm = (name or '').lower()
-        if nm in STACK_NAMES:
-            return 'stack'
-        if nm in QUEUE_NAMES or isinstance(obj, deque):
-            return 'queue'
-        return 'array'
-    if is_node_like(obj):
-        if _has_tree_shape(obj):
-            return 'tree'
-        if _has_ll_shape(obj):
-            return 'linked_list'
-        if _has_graph_shape(obj):
-            return 'graph'
-    return None
+        for i, v in enumerate(list(obj)[:MAX_NODES]):
+            if is_trackable(v):
+                refs.append((str(i), v))
+        return refs
+    if isinstance(obj, (set, frozenset)):
+        for v in list(obj)[:MAX_NODES]:
+            if is_trackable(v):
+                refs.append(('*', v))
+        return refs
+    for k, v in _own_items(obj):
+        if not is_trackable(v):
+            continue
+        if isinstance(v, (list, tuple, deque)):
+            for i, item in enumerate(list(v)[:MAX_NODES]):
+                if is_trackable(item):
+                    refs.append((f'{k}[{i}]', item))
+        elif isinstance(v, (set, frozenset)):
+            for item in list(v)[:MAX_NODES]:
+                if is_trackable(item):
+                    refs.append((f'{k}[*]', item))
+        elif isinstance(v, dict):
+            for kk, vv in list(v.items())[:MAX_NODES]:
+                if is_trackable(vv):
+                    refs.append((f'{k}[{kk}]', vv))
+        else:
+            refs.append((k, v))
+    return refs
 
-def snapshot_tree(root):
-    if root is None or not is_node_like(root):
-        return None
-    nodes = {}
-    visited = set()
-    def walk(o):
-        if o is None:
-            return None
-        oid = id(o)
-        if oid in visited:
-            return oid
-        visited.add(oid)
-        try:
-            val = jsafe(get_val(o))
-        except Exception:
-            val = '?'
-        nodes[str(oid)] = {'id': oid, 'value': val, 'children': []}
-        child_ids = []
-        for c in get_children(o):
-            if c is None:
-                continue
-            if is_node_like(c):
-                child_ids.append(walk(c))
-        nodes[str(oid)]['children'] = child_ids
-        return oid
-    root_id = walk(root)
-    return {'kind': 'tree', 'root': root_id, 'nodes': nodes}
 
-def snapshot_linked_list(head):
+def primitive_fields(obj):
+    # None is excluded: on structural node objects it near-always means "link not set"
+    # (an empty left/right/next slot), not meaningful data, so showing it in every leaf's
+    # label would be pure noise. A field that later becomes non-None will show up then.
+    if isinstance(obj, (list, tuple, dict, set, frozenset, deque)):
+        return []
+    return [(k, v) for k, v in _own_items(obj) if is_primitive(v) and v is not None]
+
+
+def node_display(obj):
+    if is_primitive(obj):
+        return jsafe(obj)
+    if isinstance(obj, (list, tuple, deque)):
+        return f'{type(obj).__name__}[{len(obj)}]'
+    if isinstance(obj, dict):
+        return f'dict[{len(obj)}]'
+    if isinstance(obj, (set, frozenset)):
+        return f'{type(obj).__name__}[{len(obj)}]'
+    fields = primitive_fields(obj)
+    if len(fields) == 1:
+        return jsafe(fields[0][1])
+    if fields:
+        return ', '.join(f'{v!r}' for _, v in fields[:3]) + ('…' if len(fields) > 3 else '')
+    return type(obj).__name__ + '()'
+
+
+def walk_graph(root):
     nodes = {}
     order = []
+    queue = [root]
     seen = set()
-    cur = head
-    cyclic = False
+    while queue and len(nodes) < MAX_NODES:
+        obj = queue.pop(0)
+        oid = id(obj)
+        if oid in seen:
+            continue
+        seen.add(oid)
+        order.append(str(oid))
+        refs = generic_refs(obj)
+        edge_list = []
+        for label, child in refs:
+            if is_trackable(child):
+                edge_list.append((label, id(child)))
+                if id(child) not in seen:
+                    queue.append(child)
+        nodes[str(oid)] = {'value': node_display(obj), 'refs': [[lbl, str(cid)] for lbl, cid in edge_list]}
+    return nodes, order
+
+
+def walk_graph_dict(root):
+    """Special path for dict roots so adjacency-style scalar keys resolve to sibling nodes by key identity."""
+    nodes = {}
+    order = []
+    key_to_nid = {}
+    # first assign a synthetic id per key (use the key's own id if trackable value, else a stable string)
+    for k in list(root.keys())[:MAX_NODES]:
+        key_to_nid[k] = f'k:{k!r}'
+    queue = list(root.keys())[:MAX_NODES]
+    seen = set()
+    adj = _looks_like_adjacency_dict(root)
+    while queue and len(nodes) < MAX_NODES:
+        k = queue.pop(0)
+        nid = key_to_nid.get(k, f'k:{k!r}')
+        if nid in seen:
+            continue
+        seen.add(nid)
+        order.append(nid)
+        v = root.get(k)
+        edge_list = []
+        if adj and isinstance(v, (list, tuple, set)):
+            # adjacency-list-of-scalar-keys shape: 'B' in graph['A'] means an edge to the
+            # node for key 'B', not a nested primitive to display.
+            for item in list(v)[:MAX_NODES]:
+                if item in key_to_nid:
+                    edge_list.append([str(item), key_to_nid[item]])
+                    if key_to_nid[item] not in seen:
+                        queue.append(item)
+        elif is_trackable(v):
+            # value is itself an object graph -- walk it generically, nested under this key
+            sub_nodes, sub_order = walk_graph(v)
+            for sid in sub_order:
+                if sid not in nodes:
+                    nodes[sid] = sub_nodes[sid]
+            if sub_order:
+                edge_list.append(['value', str(sub_order[0])])
+        nodes[nid] = {'value': jsafe(k), 'refs': edge_list}
+    return nodes, order
+
+
+def detect_cycle_and_indeg(nodes, root_id):
+    ids = list(nodes.keys())
+    outedges = {i: [cid for (_, cid) in nodes[i]['refs'] if cid in nodes] for i in ids}
+    indeg = {i: 0 for i in ids}
+    for i in ids:
+        for cid in outedges[i]:
+            indeg[cid] = indeg.get(cid, 0) + 1
+    color = {i: 0 for i in ids}
+    has_cycle = False
+    stack = [(root_id, iter(outedges.get(root_id, [])))]
+    color[root_id] = 1
+    while stack:
+        node, it = stack[-1]
+        advanced = False
+        for nxt in it:
+            if color.get(nxt, 0) == 1:
+                has_cycle = True
+            elif color.get(nxt, 0) == 0:
+                color[nxt] = 1
+                stack.append((nxt, iter(outedges.get(nxt, []))))
+                advanced = True
+                break
+        if not advanced:
+            color[node] = 2
+            stack.pop()
+    # also run from any unreached id (disconnected components, shouldn't normally happen from BFS walk)
+    for i in ids:
+        if color.get(i, 0) == 0:
+            stack = [(i, iter(outedges.get(i, [])))]
+            color[i] = 1
+            while stack:
+                node, it = stack[-1]
+                advanced = False
+                for nxt in it:
+                    if color.get(nxt, 0) == 1:
+                        has_cycle = True
+                    elif color.get(nxt, 0) == 0:
+                        color[nxt] = 1
+                        stack.append((nxt, iter(outedges.get(nxt, []))))
+                        advanced = True
+                        break
+                if not advanced:
+                    color[node] = 2
+                    stack.pop()
+    return has_cycle, indeg, outedges
+
+
+def classify_shape(nodes, root_id):
+    ids = list(nodes.keys())
+    if not ids:
+        return 'tree'
+    undirected = {i: set() for i in ids}
+    for i in ids:
+        for (_, cid) in nodes[i]['refs']:
+            if cid in nodes and cid != i:
+                undirected[i].add(cid)
+                undirected[cid].add(i)
+    degrees = {i: len(undirected[i]) for i in ids}
+    n = len(ids)
+    edge_count = sum(degrees.values()) // 2
+    # A true chain (path) has exactly two degree-1 endpoints and every other node at
+    # degree exactly 2; a true cycle (circular chain) has every node at degree exactly 2.
+    # This must be exact -- "every degree <= 2" is NOT enough, since a root with two leaf
+    # children also has max degree 2 despite being a branch, not a chain.
+    deg1 = sum(1 for i in ids if degrees[i] == 1)
+    deg2 = sum(1 for i in ids if degrees[i] == 2)
+    deg_other = n - deg1 - deg2
+    # A degree sequence of "two 1s, rest 2s" also matches a root sitting in the MIDDLE of
+    # what is undirected-isomorphic to a path (e.g. root with children A and B, where A has
+    # one further child: root's own degree is 2, same as a mid-chain node). That's actually a tree
+    # (root branches two ways), not a chain, so require the root itself sit at an endpoint
+    # (degree <= 1) for the open-path case. A closed cycle has no endpoints at all -- every
+    # node, including whichever one got picked as root, is degree 2 -- so it's exempt.
+    open_path = (n >= 2 and deg_other == 0 and deg1 == 2 and deg2 == n - 2
+                 and edge_count == n - 1 and degrees.get(root_id, 0) <= 1)
+    closed_cycle = n >= 3 and deg_other == 0 and deg1 == 0 and deg2 == n and edge_count == n
+    if open_path or closed_cycle:
+        return 'chain'
+    has_cycle, indeg, outedges = detect_cycle_and_indeg(nodes, root_id)
+    multi_parent = any(indeg.get(i, 0) > 1 for i in ids if i != root_id)
+    if has_cycle or multi_parent:
+        return 'graph'
+    return 'tree'
+
+
+def order_chain(nodes, root_id):
+    # walk from root following the single unvisited neighbor at each step (undirected adjacency,
+    # collapsing mutual next/prev pairs); detect doubly (mutual directed pair) and cyclic (returns to root).
+    undirected = {i: [] for i in nodes}
+    directed_pairs = set()
+    for i in nodes:
+        for (_, cid) in nodes[i]['refs']:
+            if cid in nodes and cid != i:
+                if cid not in undirected[i]:
+                    undirected[i].append(cid)
+                if i not in undirected[cid]:
+                    undirected[cid].append(i)
+                directed_pairs.add((i, cid))
+    order = [root_id]
+    seen = {root_id}
     doubly = False
-    while cur is not None and is_node_like(cur):
-        oid = id(cur)
-        if oid in seen:
-            cyclic = True
+    cyclic = False
+    cur = root_id
+    prev = None
+    while True:
+        nxts = [x for x in undirected.get(cur, []) if x != prev]
+        nxt = None
+        for cand in nxts:
+            if cand not in seen:
+                nxt = cand
+                break
+        if nxt is None:
+            if prev is not None and cur in undirected and any(x == root_id for x in undirected[cur]) and len(order) > 2:
+                cyclic = True
             break
-        seen.add(oid)
-        order.append(oid)
-        try:
-            val = jsafe(get_val(cur))
-        except Exception:
-            val = '?'
-        nxt = _get_attr(cur, NEXT_ATTRS)
-        if _get_attr(cur, PREV_ATTRS) is not None:
+        if (cur, nxt) in directed_pairs and (nxt, cur) in directed_pairs:
             doubly = True
-        nodes[str(oid)] = {'id': oid, 'value': val, 'next': id(nxt) if is_node_like(nxt) else None}
-        cur = nxt
-        if len(order) > 2000:
-            break
-    return {'kind': 'linked_list', 'order': order, 'nodes': nodes, 'cyclic': cyclic, 'doubly': doubly}
+        order.append(nxt)
+        seen.add(nxt)
+        prev, cur = cur, nxt
+    return order, doubly, cyclic
 
-def snapshot_graph_objs(start):
-    nodes = {}
-    seen = set()
-    queue = [start]
-    while queue:
-        o = queue.pop(0)
-        if o is None or not is_node_like(o):
-            continue
-        oid = id(o)
-        if oid in seen:
-            continue
-        seen.add(oid)
-        try:
-            val = jsafe(get_val(o))
-        except Exception:
-            val = '?'
-        neighs = _get_attr(o, NEIGHBOR_LIST_ATTRS) or []
-        if isinstance(neighs, dict):
-            neighs = list(neighs.keys())
-        neigh_ids = []
-        for nb in neighs:
-            nb_obj = nb[0] if isinstance(nb, (list, tuple)) and nb else nb
-            if is_node_like(nb_obj):
-                neigh_ids.append(id(nb_obj))
-                queue.append(nb_obj)
-        nodes[str(oid)] = {'id': oid, 'value': val, 'neighbors': neigh_ids}
-        if len(nodes) > 500:
-            break
-    return {'kind': 'graph', 'start': id(start), 'nodes': nodes}
 
-def snapshot_graph_dict(d):
-    nodes = {}
-    for k, v in list(d.items())[:500]:
-        key = k if isinstance(k, (str, int)) else repr(k)
-        neighs = []
-        if isinstance(v, (list, tuple, set)):
-            for nb in v:
-                nb_key = nb[0] if isinstance(nb, (list, tuple)) and nb else nb
-                neighs.append(nb_key if isinstance(nb_key, (str, int)) else repr(nb_key))
-        nodes[str(key)] = {'value': key, 'neighbors': [str(n) for n in neighs]}
-    keys = list(nodes.keys())
-    return {'kind': 'graph', 'start': keys[0] if keys else None, 'nodes': nodes}
+def snapshot_from_root(root, is_dict_root):
+    if is_dict_root:
+        nodes, order = walk_graph_dict(root)
+        root_id = order[0] if order else None
+    else:
+        nodes, order = walk_graph(root)
+        root_id = str(id(root))
+    if not order:
+        return None
+    shape = classify_shape(nodes, root_id)
+    if shape == 'chain':
+        chain_order, doubly, cyclic = order_chain(nodes, root_id)
+        chain_nodes = {}
+        for nid in chain_order:
+            chain_nodes[nid] = {'id': nid, 'value': nodes[nid]['value']}
+        for i, nid in enumerate(chain_order[:-1]):
+            chain_nodes[nid]['next'] = chain_order[i + 1]
+        if chain_order:
+            chain_nodes[chain_order[-1]].setdefault('next', None)
+        return {'kind': 'linked_list', 'order': chain_order, 'nodes': chain_nodes, 'cyclic': cyclic, 'doubly': doubly}
+    if shape == 'tree':
+        tree_nodes = {}
+        for nid in order:
+            kids = [cid for (_, cid) in nodes[nid]['refs'] if cid in nodes]
+            tree_nodes[nid] = {'id': nid, 'value': nodes[nid]['value'], 'children': kids}
+        return {'kind': 'tree', 'root': root_id, 'nodes': tree_nodes}
+    graph_nodes = {}
+    for nid in order:
+        neighs = [cid for (_, cid) in nodes[nid]['refs'] if cid in nodes]
+        graph_nodes[nid] = {'id': nid, 'value': nodes[nid]['value'], 'neighbors': neighs}
+    return {'kind': 'graph', 'start': root_id, 'nodes': graph_nodes}
 
-def snapshot_list_like(lst, kind):
-    items = []
-    for v in list(lst)[:1000]:
-        try:
-            items.append(jsafe(get_val(v)) if is_node_like(v) else jsafe(v))
-        except Exception:
-            items.append('?')
-    return {'kind': kind, 'items': items}
 
-def snapshot_structure(obj, kind):
-    if kind == 'tree':
-        return snapshot_tree(obj)
-    if kind == 'linked_list':
-        return snapshot_linked_list(obj)
-    if kind == 'graph':
-        return snapshot_graph_objs(obj)
-    if kind == 'graph_dict':
-        return snapshot_graph_dict(obj)
-    if kind in ('array', 'stack', 'queue'):
-        return snapshot_list_like(obj, kind)
+def classify_and_snapshot(v):
+    if isinstance(v, dict):
+        if not v:
+            return None
+        if all(is_primitive(x) for x in v.values()) and not _looks_like_adjacency_dict(v):
+            return {'kind': 'mapping', 'items': [[jsafe(k), jsafe(val)] for k, val in list(v.items())[:500]]}
+        return snapshot_from_root(v, is_dict_root=True)
+    if isinstance(v, deque):
+        if not v:
+            return None
+        if all(is_primitive(x) for x in v):
+            return {'kind': 'queue', 'items': [jsafe(x) for x in list(v)[:1000]]}
+        return snapshot_from_root(list(v), is_dict_root=False)
+    if isinstance(v, (list, tuple)):
+        if not v:
+            return None
+        if all(is_primitive(x) for x in v):
+            return {'kind': 'array', 'items': [jsafe(x) for x in list(v)[:1000]]}
+        return snapshot_from_root(v, is_dict_root=False)
+    if isinstance(v, (set, frozenset)):
+        if not v:
+            return None
+        if all(is_primitive(x) for x in v):
+            return {'kind': 'setview', 'items': [jsafe(x) for x in list(v)[:500]]}
+        return snapshot_from_root(v, is_dict_root=False)
+    if is_trackable(v):
+        return snapshot_from_root(v, is_dict_root=False)
     return None
+
 
 def _collect_frames(frame):
     frames = []
@@ -640,88 +750,111 @@ def _collect_frames(frame):
     frames.reverse()
     return frames
 
+
 def _collect_namespaces(frame):
     frames = _collect_frames(frame)
-    namespaces = [frames[0].f_globals] if frames else []
-    for fr in frames:
+    namespaces = [('module', 0, frames[0].f_globals)] if frames else []
+    for depth, fr in enumerate(frames):
         if fr.f_locals is not fr.f_globals:
-            namespaces.append(fr.f_locals)
+            namespaces.append(('local', depth + 1, fr.f_locals))
     return namespaces
 
-NODE_LOCAL_PRIORITY = ('self', 'node', 'current', 'cur', 'curr', 'temp', 'ptr', 'n', 'root', 'head')
-INDEX_LOCAL_PRIORITY = ('i', 'idx', 'index', 'j', 'k', 'pos')
 
-def frame_active_locator(frame, kind):
-    if kind in ('array', 'stack', 'queue'):
-        for name in INDEX_LOCAL_PRIORITY:
-            if name in frame.f_locals:
-                v = frame.f_locals[name]
-                if isinstance(v, int) and not isinstance(v, bool):
-                    return v
+def probe_candidate(v, cap=SIZE_PROBE_CAP):
+    # (size, has_custom_object): has_custom_object distinguishes a real user-defined
+    # structure (nodes with __dict__) from a plain built-in container of primitives/tuples,
+    # since a stray input list or lookup table is otherwise easy to mistake for "the"
+    # structure just because it happens to have more reachable elements.
+    if is_primitive(v):
+        return 0, False
+    seen = set()
+    queue = [v]
+    count = 0
+    has_obj = False
+    while queue and count < cap:
+        o = queue.pop(0)
+        oid = id(o)
+        if oid in seen:
+            continue
+        seen.add(oid)
+        count += 1
+        if not isinstance(o, (list, tuple, dict, set, frozenset, deque)):
+            has_obj = True
+        for _, child in generic_refs(o):
+            if is_trackable(child):
+                queue.append(child)
+    return count, has_obj
+
+
+_size_history = {}
+
+
+def pick_root(frame):
+    # Score each in-scope candidate as (has_custom_object, recently_changed, size) and take
+    # the lexicographic max. Rationale for each tier, found empirically by testing this
+    # against real code rather than assuming it would just work:
+    #  - has_custom_object: a real user-defined structure (nodes with __dict__) always beats
+    #    a plain built-in container, even a bigger one -- otherwise an unrelated input list
+    #    or lookup table can permanently outrank the actual structure being built (tuples and
+    #    lists of primitives are still "trackable" so they compete on raw size otherwise).
+    #  - recently_changed: within the same has_custom_object tier, a structure actively being
+    #    mutated beats a static one of the same or larger size (e.g. a small growing stack
+    #    vs. a bigger constant lookup dict defined once and never touched again).
+    #  - size: final tiebreaker.
+    # Ties after all three still favor continuity with the previous pick, then outer scope.
+    namespaces = _collect_namespaces(frame)
+    candidates = []
+    for scope_label, depth, ns in namespaces:
+        for name, v in ns.items():
+            if name.startswith('__'):
+                continue
+            if is_trackable(v):
+                size, has_obj = probe_candidate(v)
+                key = (name, depth)
+                changed = _size_history.get(key) != size
+                candidates.append((name, depth, v, has_obj, changed, size))
+    new_history = {(name, depth): size for (name, depth, v, has_obj, changed, size) in candidates}
+    _size_history.clear()
+    _size_history.update(new_history)
+    if not candidates:
+        _root_pick['name'] = None
+        _root_pick['scope'] = None
         return None
-    if kind == 'graph_dict':
-        for name in NODE_LOCAL_PRIORITY:
-            if name in frame.f_locals:
-                v = frame.f_locals[name]
-                if isinstance(v, (str, int)):
-                    return str(v)
+    best_score = max((c[3], c[4], c[5]) for c in candidates)
+    tied = [c for c in candidates if (c[3], c[4], c[5]) == best_score]
+    if len(tied) > 1 and _root_pick['name'] is not None:
+        for (name, depth, v, has_obj, changed, size) in tied:
+            if name == _root_pick['name'] and depth == _root_pick['scope']:
+                _root_pick['name'], _root_pick['scope'] = name, depth
+                return v
+    tied.sort(key=lambda c: c[1])
+    best = tied[0]
+    _root_pick['name'], _root_pick['scope'] = best[0], best[1]
+    return best[2]
+
+
+def diff_active_index(prev_struct, cur_struct):
+    if not prev_struct or not cur_struct:
         return None
-    for name in NODE_LOCAL_PRIORITY:
-        if name in frame.f_locals:
-            v = frame.f_locals[name]
-            if is_node_like(v):
-                return id(v)
+    if prev_struct.get('kind') != cur_struct.get('kind'):
+        return None
+    if cur_struct['kind'] in ('array', 'queue', 'setview'):
+        a, b = prev_struct.get('items', []), cur_struct.get('items', [])
+        if len(a) != len(b):
+            return len(b) - 1 if len(b) > len(a) else None
+        for i in range(len(b)):
+            if i >= len(a) or a[i] != b[i]:
+                return i
+        return None
+    if cur_struct['kind'] == 'mapping':
+        a = dict((k, v) for k, v in prev_struct.get('items', []))
+        b = cur_struct.get('items', [])
+        for k, v in b:
+            if k not in a or a[k] != v:
+                return k
+        return None
     return None
 
-def call_stack_path(frame, kind):
-    path = []
-    for fr in _collect_frames(frame):
-        loc = frame_active_locator(fr, kind)
-        if loc is not None:
-            path.append(loc)
-    return path
-
-def _try_classify(v, name):
-    k = classify(v, name)
-    if k:
-        return v, k
-    for attr in ROOT_ATTR_NAMES:
-        if hasattr(v, attr):
-            inner = getattr(v, attr, None)
-            k2 = classify(inner, name)
-            if k2:
-                return inner, k2
-    return None, None
-
-def find_structure_candidate(frame):
-    namespaces = _collect_namespaces(frame)
-    priority = set(STRUCT_NAMES)
-    # Pass 1: conventionally-named variables.
-    for ns in namespaces:
-        for name, v in ns.items():
-            if name.startswith('__') or name.lower() not in priority:
-                continue
-            obj, k = _try_classify(v, name)
-            if obj is not None:
-                return obj, k
-    # Pass 2: any node-like / graph-dict candidate (arrays are lower priority
-    # here since a scratch list is common and usually not the intended structure).
-    for ns in namespaces:
-        for name, v in ns.items():
-            if name.startswith('__'):
-                continue
-            obj, k = _try_classify(v, name)
-            if obj is not None and k not in ('array', 'stack', 'queue'):
-                return obj, k
-    # Pass 3: fall back to any list/deque-shaped candidate.
-    for ns in namespaces:
-        for name, v in ns.items():
-            if name.startswith('__'):
-                continue
-            obj, k = _try_classify(v, name)
-            if obj is not None:
-                return obj, k
-    return None, None
 
 def safe_locals(frame):
     out = {}
@@ -729,8 +862,12 @@ def safe_locals(frame):
         if k.startswith('__'):
             continue
         try:
-            if is_node_like(v):
-                out[k] = 'Node(' + str(get_val(v)) + ')'
+            if is_trackable(v):
+                disp = node_display(v)
+                if isinstance(v, (list, tuple, dict, set, frozenset, deque)):
+                    out[k] = str(disp)
+                else:
+                    out[k] = f'{type(v).__name__}({disp})'
             elif v is None:
                 out[k] = 'None'
             else:
@@ -740,6 +877,17 @@ def safe_locals(frame):
             out[k] = '<?>'
     return out
 
+
+def frame_active_ids(frame, node_id_set):
+    out = []
+    for name, v in frame.f_locals.items():
+        if name.startswith('__'):
+            continue
+        if is_trackable(v) and str(id(v)) in node_id_set:
+            out.append(str(id(v)))
+    return out
+
+
 def tracer(frame, event, arg):
     if frame.f_globals is not user_globals:
         return None
@@ -747,18 +895,26 @@ def tracer(frame, event, arg):
         if len(trace_steps) >= MAX_STEPS:
             sys.settrace(None)
             raise RuntimeError('Step limit (4000) exceeded -- possible infinite loop.')
-        kind = None
         snap = None
         try:
-            cand, kind = find_structure_candidate(frame)
-            if cand is not None:
-                snap = snapshot_structure(cand, kind)
+            root = pick_root(frame)
+            if root is not None:
+                snap = classify_and_snapshot(root)
         except Exception:
             snap = None
+        path = []
+        active = None
         try:
-            path = call_stack_path(frame, kind) if kind else []
+            if snap and snap['kind'] in ('tree', 'linked_list', 'graph'):
+                node_id_set = set(snap['nodes'].keys())
+                for fr in _collect_frames(frame):
+                    path.extend(frame_active_ids(fr, node_id_set))
+                active = path[-1] if path else None
+            elif snap and snap['kind'] in ('array', 'queue', 'setview', 'mapping'):
+                prev_snap = trace_steps[-1]['struct'] if trace_steps else None
+                active = diff_active_index(prev_snap, snap)
         except Exception:
-            path = []
+            path, active = [], None
         trace_steps.append({
             'line': frame.f_lineno,
             'func': frame.f_code.co_name,
@@ -766,13 +922,18 @@ def tracer(frame, event, arg):
             'locals': safe_locals(frame),
             'struct': snap,
             'stack': path,
-            'active': path[-1] if path else None,
+            'active': active,
         })
     return tracer
 
 error_msg = None
 out_buf = io.StringIO()
 try:
+    # Without this, code guarded by 'if __name__ == "__main__":' -- extremely common --
+    # silently never runs: an exec() globals dict with no __name__ of its own falls back
+    # to the builtins module's own __name__ ('builtins'), so the comparison is just False
+    # and the guarded block is skipped with no error at all.
+    user_globals['__name__'] = '__main__'
     compiled = compile(__USER_CODE__, '<user_code>', 'exec')
     sys.settrace(tracer)
     with contextlib.redirect_stdout(out_buf):
@@ -883,26 +1044,46 @@ function describeChange(prevStep, curStep){
 
   if (!cur) return quiet(prev ? 'structure is no longer reachable from this line' : "no structure built yet — this line doesn't touch it");
   if (!prev || prev.kind !== cur.kind){
-    if (cur.kind === 'array' || cur.kind === 'stack' || cur.kind === 'queue'){
+    if (cur.kind === 'array' || cur.kind === 'queue' || cur.kind === 'setview'){
       return loud(`<b>${cur.kind}</b> detected — ${cur.items.length} item${cur.items.length===1?'':'s'}`);
+    }
+    if (cur.kind === 'mapping'){
+      return loud(`<b>mapping</b> detected — ${cur.items.length} entr${cur.items.length===1?'y':'ies'}`);
     }
     const n = cur.nodes ? Object.keys(cur.nodes).length : 0;
     return loud(`<b>${cur.kind.replace('_',' ')}</b> detected — ${n} node${n===1?'':'s'}`);
   }
-  if (cur.kind === 'array' || cur.kind === 'stack' || cur.kind === 'queue'){
+  if (cur.kind === 'array' || cur.kind === 'queue' || cur.kind === 'setview'){
     const a = prev.items, b = cur.items;
     if (b.length > a.length){
       const added = b[b.length-1];
-      const verb = cur.kind === 'stack' ? 'pushed' : cur.kind === 'queue' ? 'enqueued' : 'appended';
+      const verb = cur.kind === 'queue' ? 'enqueued' : 'appended';
       return loud(`${verb} <b>${fmt(added)}</b>`);
     }
     if (b.length < a.length){
-      return loud(cur.kind === 'stack' ? 'popped from the stack' : cur.kind === 'queue' ? 'dequeued from the front' : 'removed an item');
+      return loud(cur.kind === 'queue' ? 'dequeued from the front' : 'removed an item');
     }
     for (let i=0;i<b.length;i++){
       if (JSON.stringify(a[i]) !== JSON.stringify(b[i])) return loud(`index <b>${i}</b> changed: ${fmt(a[i])} → <b>${fmt(b[i])}</b>`);
     }
     return quiet(`no change to the ${cur.kind} on this line`);
+  }
+  if (cur.kind === 'mapping'){
+    const aMap = new Map(prev.items.map(([k,v]) => [k, v]));
+    const bItems = cur.items;
+    if (bItems.length > prev.items.length){
+      const [k, v] = bItems[bItems.length-1];
+      return loud(`added key <b>${fmt(k)}</b> → ${fmt(v)}`);
+    }
+    if (bItems.length < prev.items.length){
+      return loud('removed a key');
+    }
+    for (const [k, v] of bItems){
+      if (!aMap.has(k) || JSON.stringify(aMap.get(k)) !== JSON.stringify(v)){
+        return loud(`key <b>${fmt(k)}</b> → <b>${fmt(v)}</b>`);
+      }
+    }
+    return quiet('no change to the mapping on this line');
   }
   const prevIds = new Set(Object.keys(prev.nodes||{}));
   const curIds = new Set(Object.keys(cur.nodes||{}));
@@ -1126,28 +1307,38 @@ function arrayCellsHtml(struct, activeKey, pathKeys, visitedKeys){
 }
 
 function renderArrayRow(struct, activeKey, pathKeys, visitedKeys){
-  arrayRow.classList.remove('stack-col');
   const cells = arrayCellsHtml(struct, activeKey, pathKeys, visitedKeys);
   arrayRow.innerHTML = cells.map(c=>c.html).join('');
 }
 
-function renderStackColumn(struct, activeKey, pathKeys, visitedKeys){
-  arrayRow.classList.add('stack-col');
-  const n = struct.items.length;
-  const cells = arrayCellsHtml(struct, activeKey, pathKeys, visitedKeys);
-  arrayRow.innerHTML = cells.map(c=>{
-    const tag = c.idx === n-1 ? '<div class="stack-tag">← top</div>' : '';
-    return c.html.replace('</div>', tag + '</div>');
-  }).join('');
-}
-
 function renderQueueRow(struct, activeKey, pathKeys, visitedKeys){
-  arrayRow.classList.remove('stack-col');
   const cells = arrayCellsHtml(struct, activeKey, pathKeys, visitedKeys);
   const n = struct.items.length;
   arrayRow.innerHTML = (n ? '<div class="queue-tag">front →</div>' : '') +
     cells.map(c=>c.html).join('') +
     (n ? '<div class="queue-tag">← rear</div>' : '');
+}
+
+function renderSetRow(struct, activeKey, pathKeys, visitedKeys){
+  arrayRow.innerHTML = struct.items.map((v,idx)=>{
+    let cls = 'array-cell';
+    const k = String(idx);
+    if (k === activeKey) cls += ' active';
+    else if (pathKeys.has(k)) cls += ' onpath';
+    else if (visitedKeys.has(k)) cls += ' visited';
+    return `<div class="${cls}"><div class="array-val">${escapeHtml(String(v))}</div></div>`;
+  }).join('');
+}
+
+function renderMappingRow(struct, activeKey, pathKeys, visitedKeys){
+  arrayRow.innerHTML = struct.items.map(([k,v])=>{
+    let cls = 'array-cell';
+    const kk = String(k);
+    if (kk === activeKey) cls += ' active';
+    else if (pathKeys.has(kk)) cls += ' onpath';
+    else if (visitedKeys.has(kk)) cls += ' visited';
+    return `<div class="${cls}"><div class="array-val">${escapeHtml(String(v))}</div><div class="array-idx">${escapeHtml(String(k))}</div></div>`;
+  }).join('');
 }
 
 function showEmptyMessage(msg){
@@ -1174,7 +1365,7 @@ function renderStruct(step, i){
   const pathKeys = new Set((step.stack || []).map(String));
   const visitedKeys = computeVisitedSet(i);
 
-  if (struct.kind === 'array' || struct.kind === 'stack' || struct.kind === 'queue'){
+  if (struct.kind === 'array' || struct.kind === 'queue' || struct.kind === 'mapping' || struct.kind === 'setview'){
     arrayRow.style.display = 'flex';
     if (struct.kind === 'array'){
       renderArrayRow(struct, activeKey, pathKeys, visitedKeys);
@@ -1192,8 +1383,9 @@ function renderStruct(step, i){
       heapToggleWrap.style.display = 'none';
       treeSvg.style.display = 'none';
       treeSvg.innerHTML = ''; treeSvg.removeAttribute('width'); treeSvg.removeAttribute('height');
-      if (struct.kind === 'stack') renderStackColumn(struct, activeKey, pathKeys, visitedKeys);
-      else renderQueueRow(struct, activeKey, pathKeys, visitedKeys);
+      if (struct.kind === 'queue') renderQueueRow(struct, activeKey, pathKeys, visitedKeys);
+      else if (struct.kind === 'mapping') renderMappingRow(struct, activeKey, pathKeys, visitedKeys);
+      else renderSetRow(struct, activeKey, pathKeys, visitedKeys);
     }
     return;
   }
