@@ -9,26 +9,26 @@
      below with your actual GitHub Pages path before publishing,
      e.g. https://janedoe.github.io/bst-debugger/
      ============================================================ -->
-<title>BST Visualizer & Debugger — Step Through Your Python Binary Search Tree Code Online</title>
-<meta name="description" content="Free online BST visualizer and debugger. Paste your own Python binary search tree or n-ary tree code and watch it execute line by line — real interpreter, real recursion, real tree drawing. No signup, runs entirely in your browser.">
-<meta name="keywords" content="BST visualizer, binary search tree debugger, python tree visualizer, tree data structure visualizer, python code debugger online, recursive algorithm visualizer, DFS visualizer, insert delete search BST, learn binary search trees, python tutor alternative">
-<meta name="author" content="BST Debugger">
+<title>Data Structure Visualizer & Debugger — Step Through Trees, Lists, Graphs & Heaps in Python Online</title>
+<meta name="description" content="Free online data structure visualizer and debugger. Paste your own Python code — binary/n-ary trees, linked lists, graphs, heaps, stacks, or queues — and watch it execute line by line with a real interpreter. No signup, runs entirely in your browser.">
+<meta name="keywords" content="data structure visualizer, BST visualizer, binary search tree debugger, linked list visualizer, graph visualizer, heap visualizer, stack queue visualizer, python tree visualizer, python code debugger online, recursive algorithm visualizer, DFS BFS visualizer, python tutor alternative">
+<meta name="author" content="Data Structure Debugger">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://YOUR-USERNAME.github.io/YOUR-REPO/">
 
 <!-- Open Graph / Facebook, LinkedIn, Slack, Discord previews -->
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://YOUR-USERNAME.github.io/YOUR-REPO/">
-<meta property="og:title" content="BST Visualizer & Debugger — Step Through Your Python Code Online">
-<meta property="og:description" content="Paste any Python binary search tree or n-ary tree implementation and watch the real interpreter execute it, line by line, with the tree drawn and the recursion path highlighted.">
+<meta property="og:title" content="Data Structure Visualizer & Debugger — Step Through Your Python Code Online">
+<meta property="og:description" content="Paste any Python tree, linked list, graph, heap, stack, or queue implementation and watch the real interpreter execute it, line by line, with the structure drawn live and the traversal path highlighted.">
 <meta property="og:image" content="https://YOUR-USERNAME.github.io/YOUR-REPO/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 
 <!-- Twitter / X card -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="BST Visualizer & Debugger — Step Through Your Python Code Online">
-<meta name="twitter:description" content="Paste any Python binary search tree or n-ary tree implementation and watch it execute line by line, with the tree drawn live and the recursion path highlighted.">
+<meta name="twitter:title" content="Data Structure Visualizer & Debugger — Step Through Your Python Code Online">
+<meta name="twitter:description" content="Paste any Python tree, linked list, graph, heap, stack, or queue implementation and watch it execute line by line, with the structure drawn live and the traversal path highlighted.">
 <meta name="twitter:image" content="https://YOUR-USERNAME.github.io/YOUR-REPO/og-image.png">
 
 <meta name="theme-color" content="#0E1218">
@@ -39,9 +39,9 @@
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "BST Visualizer & Debugger",
+  "name": "Data Structure Visualizer & Debugger",
   "url": "https://YOUR-USERNAME.github.io/YOUR-REPO/",
-  "description": "Free browser-based tool that executes your own Python binary search tree or n-ary tree code and visualizes real execution line by line, with the live recursion path highlighted on the tree.",
+  "description": "Free browser-based tool that executes your own Python code — trees, linked lists, graphs, heaps, stacks, and queues — and visualizes real execution line by line, with the live traversal path highlighted on the structure.",
   "applicationCategory": "DeveloperApplication",
   "operatingSystem": "Any (runs in any modern web browser)",
   "browserRequirements": "Requires JavaScript and WebAssembly support",
@@ -77,15 +77,19 @@
   main.grid{flex:1;display:grid;grid-template-columns:380px 1fr 300px;gap:1px;background:var(--border);overflow:hidden;}
   @media (max-width:1000px){ main.grid{grid-template-columns:1fr;grid-template-rows:auto auto auto;overflow:auto;} .app{height:auto;min-height:100vh;} }
   .panel{background:var(--panel);display:flex;flex-direction:column;min-height:0;overflow:hidden;}
-  .panel-head{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;justify-content:space-between;align-items:center;}
+  .panel-head{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;justify-content:space-between;align-items:center;gap:10px;}
   .panel-head b{color:var(--teal);font-weight:600;text-transform:none;letter-spacing:0;}
+  .panel-head-left{display:flex;align-items:center;gap:8px;}
+  #heapToggleWrap{display:none;align-items:center;gap:5px;font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  #heapToggleWrap input{accent-color:var(--teal);cursor:pointer;}
   textarea#codeInput{flex:0 0 auto;height:230px;background:var(--panel-alt);color:var(--text);border:none;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;padding:12px 14px;resize:vertical;outline:none;line-height:1.55;tab-size:4;}
   .controls{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-bottom:1px solid var(--border);flex-shrink:0;}
-  button{font-family:var(--sans);font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--panel-alt);color:var(--text);padding:6px 10px;border-radius:5px;cursor:pointer;transition:border-color .15s,color .15s;}
-  button:hover:not(:disabled){border-color:var(--teal);color:var(--teal);}
+  button,select.ctl{font-family:var(--sans);font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--panel-alt);color:var(--text);padding:6px 10px;border-radius:5px;cursor:pointer;transition:border-color .15s,color .15s;}
+  button:hover:not(:disabled),select.ctl:hover{border-color:var(--teal);color:var(--teal);}
   button:disabled{opacity:0.3;cursor:not-allowed;}
   button.primary{background:var(--teal);color:#0E1218;border-color:var(--teal);}
   button.primary:hover:not(:disabled){opacity:0.85;color:#0E1218;}
+  select.ctl{max-width:170px;}
   .speed-row{display:flex;align-items:center;gap:8px;padding:0 14px 10px;font-size:11px;color:var(--muted);font-family:var(--mono);}
   .speed-row input{flex:1;accent-color:var(--teal);}
   .hint{padding:8px 14px 10px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);line-height:1.5;}
@@ -95,17 +99,29 @@
   pre#codeView .line .num{display:inline-block;width:26px;color:#3D4756;user-select:none;}
   pre#codeView .line.active{border-left-color:var(--amber);background:rgba(242,177,85,0.08);color:var(--text);}
   #treeScroll{flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:20px;}
+  #structInner{display:flex;flex-direction:column;align-items:center;gap:18px;}
   svg#treeSvg{overflow:visible;}
   .edge{stroke:var(--border);stroke-width:2;fill:none;transition:x1 .3s,y1 .3s,x2 .3s,y2 .3s;}
   .node-g{transition:transform .3s ease;}
   .node-circle{fill:var(--panel-alt);stroke:var(--border);stroke-width:2;transition:fill .2s,stroke .2s,filter .2s;}
+  .node-rect{fill:var(--panel-alt);stroke:var(--border);stroke-width:2;transition:fill .2s,stroke .2s,filter .2s;}
   .node-text{fill:var(--text);font-family:var(--mono);font-size:12.5px;font-weight:600;text-anchor:middle;dominant-baseline:central;pointer-events:none;}
-  .node-g.active .node-circle{stroke:var(--amber);stroke-width:3;filter:drop-shadow(0 0 8px rgba(242,177,85,.55));}
-  .node-g.onpath .node-circle{stroke:var(--teal);stroke-width:2.5;fill:rgba(79,209,197,0.10);}
-  .node-g.visited .node-circle{stroke:#3D4756;opacity:0.6;}
+  .node-g.active .node-circle,.node-g.active .node-rect{stroke:var(--amber);stroke-width:3;filter:drop-shadow(0 0 8px rgba(242,177,85,.55));}
+  .node-g.onpath .node-circle,.node-g.onpath .node-rect{stroke:var(--teal);stroke-width:2.5;fill:rgba(79,209,197,0.10);}
+  .node-g.visited .node-circle,.node-g.visited .node-rect{stroke:#3D4756;opacity:0.6;}
   .node-g.visited .node-text{opacity:0.55;}
   .edge-lit{stroke:var(--teal);stroke-width:2.5;}
   .empty-msg{color:var(--muted);font-family:var(--mono);font-size:13px;padding:40px;text-align:center;}
+  #arrayRow{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;justify-content:center;}
+  #arrayRow.stack-col{flex-direction:column-reverse;align-items:center;}
+  .array-cell{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .array-val{min-width:44px;height:44px;padding:0 6px;display:flex;align-items:center;justify-content:center;background:var(--panel-alt);border:2px solid var(--border);border-radius:6px;font-family:var(--mono);font-weight:600;color:var(--text);transition:border-color .2s,background .2s;}
+  .array-idx{font-family:var(--mono);font-size:10px;color:var(--muted);}
+  .array-cell.active .array-val{border-color:var(--amber);box-shadow:0 0 8px rgba(242,177,85,.55);}
+  .array-cell.onpath .array-val{border-color:var(--teal);background:rgba(79,209,197,0.10);}
+  .array-cell.visited .array-val{border-color:#3D4756;opacity:.6;}
+  .stack-tag{font-family:var(--mono);font-size:9.5px;color:var(--amber);letter-spacing:0.04em;}
+  .queue-tag{font-family:var(--mono);font-size:10px;color:var(--muted);align-self:center;padding:0 4px;white-space:nowrap;}
   #stepIndicator{font-family:var(--mono);font-size:11px;color:var(--muted);padding:6px 14px;border-bottom:1px solid var(--border);}
   #watchList{padding:12px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11.5px;flex-shrink:0;max-height:180px;overflow-y:auto;}
   #watchList .row{display:flex;justify-content:space-between;gap:8px;padding:2px 0;color:var(--muted);}
@@ -135,8 +151,8 @@
 <body>
 <div class="app">
   <header>
-    <h1>BST <span>Debugger</span></h1>
-    <p>runs your actual Python code and visualizes the real tree state, line by line</p>
+    <h1>Data Structure <span>Debugger</span></h1>
+    <p>runs your actual Python code and visualizes the real structure state, line by line</p>
     <span id="pyStatus">loading python…</span>
   </header>
   <main class="grid">
@@ -145,7 +161,15 @@
       <textarea id="codeInput" spellcheck="false"></textarea>
       <div class="controls">
         <button id="runBtn" class="primary" disabled>▶ Run</button>
-        <button id="sampleBtn">Sample</button>
+        <select id="sampleSelect" class="ctl">
+          <option value="">Load sample…</option>
+          <option value="bst">Binary Search Tree</option>
+          <option value="linked_list">Linked List</option>
+          <option value="graph">Graph (BFS)</option>
+          <option value="heap">Min-Heap (array)</option>
+          <option value="stack">Stack (valid parens)</option>
+          <option value="queue">Queue (deque)</option>
+        </select>
       </div>
       <div class="controls" id="playControls" style="display:none;">
         <button id="backBtn">◀ Back</button>
@@ -159,14 +183,23 @@
         <input type="range" id="speedSlider" min="60" max="1000" value="350">
         <span id="speedLabel">350ms</span>
       </div>
-      <div class="hint">Works with binary trees (<code>left</code>/<code>right</code> attrs) and n-ary trees (a <code>children</code> list) alike, on objects or dicts. Value is read from <code>val</code>, <code>value</code>, <code>data</code>, <code>key</code> or <code>name</code>. A <code>root</code>-like variable anywhere in your code (module level, inside <code>main()</code>, or as <code>.root</code> on a wrapper class) is auto-detected as the tree.</div>
+      <div class="hint">Auto-detects, on objects or dicts: binary trees (<code>left</code>/<code>right</code>), n-ary trees (<code>children</code> list), linked lists (<code>next</code>/<code>prev</code>), graphs (a <code>neighbors</code>/<code>adj</code> list on node objects, or a plain <code>{key: [neighbors]}</code> adjacency dict), and plain lists of numbers/strings as an array, a <code>stack</code>/<code>queue</code> (incl. <code>collections.deque</code>), or a min/max-heap — toggle "view as tree" on an array to see the implicit heap tree. A conventionally-named variable anywhere in your code (module level, inside a function, or as <code>.root</code> on a wrapper class) is auto-detected as the structure to draw.</div>
       <div class="panel-head">Source <b id="stepIndicator2"></b></div>
       <pre id="codeView"></pre>
     </section>
 
     <section class="panel tree-panel">
-      <div class="panel-head">Tree <span id="stepIndicator"></span></div>
-      <div id="treeScroll"><svg id="treeSvg"></svg></div>
+      <div class="panel-head">
+        <span class="panel-head-left">Structure <span id="stepIndicator"></span></span>
+        <label id="heapToggleWrap"><input type="checkbox" id="heapTreeToggle">view as tree</label>
+      </div>
+      <div id="treeScroll">
+        <div id="emptyMsg" class="empty-msg">paste code and hit Run to begin</div>
+        <div id="structInner" style="display:none;">
+          <div id="arrayRow"></div>
+          <svg id="treeSvg"></svg>
+        </div>
+      </div>
       <div id="outputBox"></div>
     </section>
 
@@ -181,16 +214,24 @@
 
 <article class="seo-content">
   <section>
-    <h2>What is this BST Visualizer?</h2>
-    <p>This is a free, browser-based tool for visualizing and debugging binary search trees and n-ary trees written in Python. Unlike most tree visualizers, which only animate a fixed, pre-built algorithm, this tool runs <strong>your own code</strong> — paste any Python implementation of a binary search tree, an n-ary tree, or any recursive tree/graph structure, and it executes the real Python interpreter in your browser to trace exactly what your code does, line by line.</p>
+    <h2>What is this Data Structure Visualizer?</h2>
+    <p>This is a free, browser-based tool for visualizing and debugging data structures written in Python. Unlike most visualizers, which only animate a fixed, pre-built algorithm, this tool runs <strong>your own code</strong> — paste any Python implementation of a binary search tree, an n-ary tree, a linked list, a graph, a heap, a stack, or a queue, along with driver code that exercises it, and it executes the real Python interpreter in your browser to trace exactly what your code does, line by line.</p>
   </section>
   <section>
     <h2>How it works</h2>
-    <p>The tool uses Pyodide, a full CPython runtime compiled to WebAssembly, so your code runs as real Python — not a simulation or reimplementation. As execution proceeds, a line-level tracer inspects your live objects after every statement, automatically detects your tree's root variable, and reconstructs the tree structure by walking whatever attributes your node objects use for children and values. The result is a step-by-step debugger that shows the actual line executing, the live local variables in the current stack frame, the tree redrawn at every step, and the real recursion path highlighted as it moves through the tree.</p>
+    <p>The tool uses Pyodide, a full CPython runtime compiled to WebAssembly, so your code runs as real Python — not a simulation or reimplementation. As execution proceeds, a line-level tracer inspects your live objects after every statement, automatically detects which variable holds your structure and what kind of structure it is, and reconstructs it by walking whatever attributes or contents your code uses. The result is a step-by-step debugger that shows the actual line executing, the live local variables in the current stack frame, the structure redrawn at every step, and the real traversal path highlighted as it moves through the structure.</p>
   </section>
   <section>
-    <h2>Supported tree structures</h2>
-    <p>Works with classic binary search trees using <code>left</code>/<code>right</code> child attributes (or dict-style keys), and with n-ary trees using a <code>children</code> list. Node values are read from common attribute names like <code>val</code>, <code>value</code>, <code>data</code>, <code>key</code>, or <code>name</code>. No special base class or library import is required — most conventional tree implementations work without modification.</p>
+    <h2>Supported data structures</h2>
+    <ul>
+      <li><strong>Binary search trees</strong> using <code>left</code>/<code>right</code> child attributes (or dict-style keys)</li>
+      <li><strong>N-ary trees</strong> using a <code>children</code> list</li>
+      <li><strong>Linked lists</strong>, singly or doubly, using <code>next</code>/<code>prev</code> attributes — cycles are detected and drawn</li>
+      <li><strong>Graphs</strong>, either node objects exposing a <code>neighbors</code>/<code>adj</code> list, or a plain adjacency dict like <code>{'A': ['B', 'C']}</code></li>
+      <li><strong>Heaps and arrays</strong> — any plain list of numbers/strings, with an optional toggle to also view it as the implicit binary tree a heap represents</li>
+      <li><strong>Stacks and queues</strong> — a list or <code>collections.deque</code> named accordingly, drawn as a vertical stack with a "top" marker or a horizontal queue with front/rear labels</li>
+    </ul>
+    <p>Node values are read from common attribute names like <code>val</code>, <code>value</code>, <code>data</code>, <code>key</code>, or <code>name</code>. No special base class or library import is required — most conventional implementations work without modification.</p>
   </section>
   <section>
     <h2>Constraints — what your code needs to look like</h2>
@@ -200,20 +241,25 @@
       <tbody>
         <tr><td>Binary children</td><td><code>left</code>/<code>right</code>, <code>l</code>/<code>r</code>, <code>left_child</code>/<code>right_child</code>, <code>leftChild</code>/<code>rightChild</code>, <code>lchild</code>/<code>rchild</code></td></tr>
         <tr><td>N-ary children</td><td><code>children</code>, <code>kids</code>, <code>child_nodes</code>, or <code>nodes</code> (must be a list/tuple)</td></tr>
+        <tr><td>Linked list pointers</td><td><code>next</code>/<code>nxt</code>/<code>next_node</code>/<code>succ</code>, optional <code>prev</code>/<code>previous</code>/<code>prev_node</code>/<code>pred</code> for doubly linked</td></tr>
+        <tr><td>Graph neighbors</td><td><code>neighbors</code>, <code>neighbours</code>, <code>adj</code>, <code>adjacent</code>, <code>edges</code>, <code>links</code>, or <code>connections</code> as a list on each node object — or a top-level dict mapping keys to lists of neighbor keys</td></tr>
         <tr><td>Node value</td><td><code>val</code>, <code>value</code>, <code>data</code>, <code>key</code>, <code>item</code>, <code>label</code>, <code>name</code>, or <code>v</code></td></tr>
-        <tr><td>Tree/root variable</td><td><code>root</code>, <code>tree</code>, <code>bst</code>, <code>head</code>, or <code>node</code> — at module level, inside a function, or as <code>.root</code>/<code>.head</code>/<code>.top</code> on a wrapper class</td></tr>
-        <tr><td>"Current" node per stack frame</td><td>a local variable named <code>self</code>, <code>node</code>, <code>current</code>, <code>cur</code>, <code>curr</code>, <code>n</code>, or <code>root</code> in that function</td></tr>
+        <tr><td>Structure/root variable</td><td><code>root</code>, <code>tree</code>, <code>bst</code>, <code>head</code>, <code>node</code>, <code>graph</code>, <code>g</code>, <code>start</code>, <code>heap</code>, <code>pq</code>, <code>arr</code>, <code>array</code>, <code>lst</code> — at module level, inside a function, or as <code>.root</code>/<code>.head</code>/<code>.top</code> on a wrapper class</td></tr>
+        <tr><td>Stack / queue variable</td><td><code>stack</code>/<code>stk</code>/<code>st</code> for a vertical stack view; <code>queue</code>/<code>q</code>/<code>fifo</code>/<code>dq</code>, or any <code>collections.deque</code> regardless of name, for a queue view</td></tr>
+        <tr><td>"Current" node per stack frame</td><td>a local variable named <code>self</code>, <code>node</code>, <code>current</code>, <code>cur</code>, <code>curr</code>, <code>temp</code>, <code>ptr</code>, <code>n</code>, or <code>root</code> in that function</td></tr>
+        <tr><td>"Current" index (arrays/heaps/stacks/queues)</td><td>a local variable named <code>i</code>, <code>idx</code>, <code>index</code>, <code>j</code>, <code>k</code>, or <code>pos</code> holding an integer in range</td></tr>
       </tbody>
     </table>
-    <p>If your code uses none of these — a child attribute called <code>kid1</code>/<code>kid2</code>, a value stored under <code>.age</code>, a root variable called <code>treeHead</code> — the tool won't find a tree to draw. It fails silently rather than erroring; you'll just see "no tree detected." There's no configuration option to add custom names, so the fix is either renaming to match one of the conventions above, or extending the tool's source if you're self-hosting it. This covers most textbook and interview-style BST implementations, but not every possible naming scheme.</p>
+    <p>If your code uses none of these — a child attribute called <code>kid1</code>/<code>kid2</code>, a value stored under <code>.age</code>, a root variable called <code>treeHead</code> — the tool won't find a structure to draw. It fails silently rather than erroring; you'll just see "no structure detected." There's no configuration option to add custom names, so the fix is either renaming to match one of the conventions above, or extending the tool's source if you're self-hosting it. This covers most textbook and interview-style implementations, but not every possible naming scheme.</p>
   </section>
   <section>
     <h2>Common uses</h2>
     <ul>
-      <li>Debugging your own BST insert, delete, and search implementations for a data structures course or coding interview prep</li>
-      <li>Visualizing depth-first and breadth-first traversal order on a real tree</li>
-      <li>Understanding how recursive functions build up and unwind a call stack while operating on a tree</li>
-      <li>Teaching binary search tree concepts with a live, real-code demonstration instead of a static diagram</li>
+      <li>Debugging your own tree, linked list, graph, or heap insert/delete/search implementations for a data structures course or coding interview prep</li>
+      <li>Visualizing depth-first and breadth-first traversal order on a real tree or graph</li>
+      <li>Watching a linked list get reversed, or a heap get sifted up/down, node by node</li>
+      <li>Understanding how recursive functions build up and unwind a call stack while operating on a structure</li>
+      <li>Teaching data structure concepts with a live, real-code demonstration instead of a static diagram</li>
     </ul>
   </section>
 </article>
@@ -223,7 +269,7 @@
 </footer>
 
 <script>
-const SAMPLE = `class Node:
+const SAMPLE_BST = `class Node:
     def __init__(self, val):
         self.val = val
         self.left = None
@@ -277,8 +323,145 @@ root = delete(root, 70)
 print("deleted 70")
 `;
 
+const SAMPLE_LL = `class ListNode:
+    def __init__(self, val):
+        self.val = val
+        self.next = None
+
+def build_list(values):
+    head = None
+    tail = None
+    for v in values:
+        node = ListNode(v)
+        if head is None:
+            head = node
+            tail = node
+        else:
+            tail.next = node
+            tail = node
+    return head
+
+def reverse_list(head):
+    prev = None
+    curr = head
+    while curr is not None:
+        nxt = curr.next
+        curr.next = prev
+        prev = curr
+        curr = nxt
+    return prev
+
+def print_list(head):
+    vals = []
+    node = head
+    while node is not None:
+        vals.append(str(node.val))
+        node = node.next
+    print(" -> ".join(vals))
+
+head = build_list([1, 2, 3, 4, 5])
+print("original:")
+print_list(head)
+
+head = reverse_list(head)
+print("reversed:")
+print_list(head)
+`;
+
+const SAMPLE_GRAPH = `from collections import deque
+
+graph = {
+    'A': ['B', 'C'],
+    'B': ['A', 'D', 'E'],
+    'C': ['A', 'F'],
+    'D': ['B'],
+    'E': ['B', 'F'],
+    'F': ['C', 'E'],
+}
+
+def bfs(graph, start):
+    visited = {start}
+    order = []
+    queue = deque([start])
+    while queue:
+        node = queue.popleft()
+        order.append(node)
+        for neighbor in graph[node]:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)
+    return order
+
+result = bfs(graph, 'A')
+print("BFS order:", result)
+`;
+
+const SAMPLE_HEAP = `def sift_down(heap, i, n):
+    smallest = i
+    left = 2 * i + 1
+    right = 2 * i + 2
+    if left < n and heap[left] < heap[smallest]:
+        smallest = left
+    if right < n and heap[right] < heap[smallest]:
+        smallest = right
+    if smallest != i:
+        heap[i], heap[smallest] = heap[smallest], heap[i]
+        sift_down(heap, smallest, n)
+
+def build_heap(arr):
+    n = len(arr)
+    for i in range(n // 2 - 1, -1, -1):
+        sift_down(arr, i, n)
+    return arr
+
+heap = [9, 4, 7, 1, 3, 6, 8, 2]
+print("before:", heap)
+heap = build_heap(heap)
+print("after (min-heap):", heap)
+`;
+
+const SAMPLE_STACK = `def is_valid(s):
+    stack = []
+    pairs = {')': '(', ']': '[', '}': '{'}
+    for i, ch in enumerate(s):
+        if ch in '([{':
+            stack.append(ch)
+        else:
+            if not stack or stack[-1] != pairs[ch]:
+                return False
+            stack.pop()
+    return not stack
+
+result = is_valid("{[()]}")
+print("valid:", result)
+`;
+
+const SAMPLE_QUEUE = `from collections import deque
+
+def process_queue(tasks):
+    queue = deque(tasks)
+    completed = []
+    while queue:
+        task = queue.popleft()
+        completed.append(task)
+        print("processed:", task)
+    return completed
+
+process_queue(["email", "backup", "report", "cleanup"])
+`;
+
+const SAMPLES = {
+  bst: SAMPLE_BST,
+  linked_list: SAMPLE_LL,
+  graph: SAMPLE_GRAPH,
+  heap: SAMPLE_HEAP,
+  stack: SAMPLE_STACK,
+  queue: SAMPLE_QUEUE,
+};
+
 const DRIVER = `
 import sys, json, io, contextlib, traceback
+from collections import deque
 
 MAX_STEPS = 4000
 trace_steps = []
@@ -287,6 +470,17 @@ user_globals = {}
 VALUE_ATTRS = ('val', 'value', 'data', 'key', 'item', 'label', 'name', 'v')
 LEFT_ATTRS = ('left', 'l', 'left_child', 'leftChild', 'lchild')
 RIGHT_ATTRS = ('right', 'r', 'right_child', 'rightChild', 'rchild')
+CHILDREN_LIST_ATTRS = ('children', 'kids', 'child_nodes', 'nodes')
+NEXT_ATTRS = ('next', 'nxt', 'next_node', 'succ')
+PREV_ATTRS = ('prev', 'previous', 'prev_node', 'pred')
+NEIGHBOR_LIST_ATTRS = ('neighbors', 'neighbours', 'adj', 'adjacent', 'edges', 'links', 'connections')
+
+STRUCT_NAMES = ('root', 'tree', 'bst', 'head', 'node', 'graph', 'g', 'start',
+                'heap', 'pq', 'stack', 'stk', 'queue', 'q', 'fifo', 'dq',
+                'arr', 'array', 'lst', 'list_', 'items', 'dll', 'll')
+STACK_NAMES = ('stack', 'stk', 'st')
+QUEUE_NAMES = ('queue', 'q', 'fifo', 'dq')
+ROOT_ATTR_NAMES = ('root', 'head', 'top')
 
 def get_val(obj):
     for attr in VALUE_ATTRS:
@@ -299,27 +493,35 @@ def get_val(obj):
             return obj[attr]
     return repr(obj)
 
-def _first_attr(obj, names):
-    for n in names:
-        if hasattr(obj, n):
-            return getattr(obj, n)
-        if isinstance(obj, dict) and n in obj:
-            return obj[n]
-    return None
-
-def get_child(obj, side):
-    return _first_attr(obj, LEFT_ATTRS if side == 'left' else RIGHT_ATTRS)
-
-def _has_child_attr(obj, names):
+def _has_attr(obj, names):
     if isinstance(obj, dict):
         return any(n in obj for n in names)
     return any(hasattr(obj, n) for n in names)
 
-CHILDREN_LIST_ATTRS = ('children', 'kids', 'child_nodes', 'nodes')
+def _get_attr(obj, names):
+    for n in names:
+        if isinstance(obj, dict) and n in obj:
+            return obj[n]
+        if hasattr(obj, n):
+            return getattr(obj, n)
+    return None
+
+def _has_tree_shape(obj):
+    return _has_attr(obj, CHILDREN_LIST_ATTRS) or _has_attr(obj, LEFT_ATTRS) or _has_attr(obj, RIGHT_ATTRS)
+
+def _has_ll_shape(obj):
+    return _has_attr(obj, NEXT_ATTRS)
+
+def _has_graph_shape(obj):
+    v = _get_attr(obj, NEIGHBOR_LIST_ATTRS)
+    return isinstance(v, (list, tuple, set, dict))
+
+def is_node_like(obj):
+    if obj is None or isinstance(obj, (int, float, str, bool, list, tuple, set, deque)):
+        return False
+    return _has_tree_shape(obj) or _has_ll_shape(obj) or _has_graph_shape(obj)
 
 def _list_children_attr(obj):
-    # Returns a list of children if obj exposes a list/tuple of children
-    # under a conventional name (n-ary tree style), else None.
     for name in CHILDREN_LIST_ATTRS:
         if hasattr(obj, name):
             v = getattr(obj, name)
@@ -329,25 +531,15 @@ def _list_children_attr(obj):
             return list(obj[name])
     return None
 
-def is_node_like(obj):
-    if obj is None or isinstance(obj, (int, float, str, bool, list, tuple, set)):
-        return False
-    if _list_children_attr(obj) is not None:
-        return True
-    return _has_child_attr(obj, LEFT_ATTRS) or _has_child_attr(obj, RIGHT_ATTRS)
-
 def get_children(obj):
-    # Unify n-ary 'children' lists and binary 'left'/'right' attrs into a
-    # single ordered list of child objects (None entries kept as gaps for
-    # binary trees so left/right positions aren't confused).
     lst = _list_children_attr(obj)
     if lst is not None:
         return lst
     kids = []
-    if _has_child_attr(obj, LEFT_ATTRS):
-        kids.append(get_child(obj, 'left'))
-    if _has_child_attr(obj, RIGHT_ATTRS):
-        kids.append(get_child(obj, 'right'))
+    if _has_attr(obj, LEFT_ATTRS):
+        kids.append(_get_attr(obj, LEFT_ATTRS))
+    if _has_attr(obj, RIGHT_ATTRS):
+        kids.append(_get_attr(obj, RIGHT_ATTRS))
     return kids
 
 def jsafe(v):
@@ -356,6 +548,49 @@ def jsafe(v):
         return v
     except Exception:
         return repr(v)
+
+def _looks_like_adjacency_dict(obj):
+    if not isinstance(obj, dict) or not obj:
+        return False
+    listy = sum(1 for v in obj.values() if isinstance(v, (list, tuple, set)))
+    return listy >= max(1, int(len(obj) * 0.6))
+
+def classify(obj, name=None):
+    if obj is None:
+        return None
+    if isinstance(obj, dict):
+        if _looks_like_adjacency_dict(obj):
+            return 'graph_dict'
+        if is_node_like(obj):
+            if _has_tree_shape(obj):
+                return 'tree'
+            if _has_ll_shape(obj):
+                return 'linked_list'
+            if _has_graph_shape(obj):
+                return 'graph'
+        return None
+    if isinstance(obj, (list, tuple, deque)):
+        items = list(obj)
+        if not items:
+            return None
+        if any(is_node_like(x) for x in items[:8]):
+            return None
+        if not all(isinstance(x, (int, float, str, bool)) for x in items[:20]):
+            return None
+        nm = (name or '').lower()
+        if nm in STACK_NAMES:
+            return 'stack'
+        if nm in QUEUE_NAMES or isinstance(obj, deque):
+            return 'queue'
+        return 'array'
+    if is_node_like(obj):
+        if _has_tree_shape(obj):
+            return 'tree'
+        if _has_ll_shape(obj):
+            return 'linked_list'
+        if _has_graph_shape(obj):
+            return 'graph'
+    return None
 
 def snapshot_tree(root):
     if root is None or not is_node_like(root):
@@ -383,14 +618,101 @@ def snapshot_tree(root):
         nodes[str(oid)]['children'] = child_ids
         return oid
     root_id = walk(root)
-    return {'root': root_id, 'nodes': nodes}
+    return {'kind': 'tree', 'root': root_id, 'nodes': nodes}
 
-ROOT_NAMES = ('root', 'tree', 'bst', 'head', 'node')
-ROOT_ATTR_NAMES = ('root', 'head', 'top')
+def snapshot_linked_list(head):
+    nodes = {}
+    order = []
+    seen = set()
+    cur = head
+    cyclic = False
+    doubly = False
+    while cur is not None and is_node_like(cur):
+        oid = id(cur)
+        if oid in seen:
+            cyclic = True
+            break
+        seen.add(oid)
+        order.append(oid)
+        try:
+            val = jsafe(get_val(cur))
+        except Exception:
+            val = '?'
+        nxt = _get_attr(cur, NEXT_ATTRS)
+        if _get_attr(cur, PREV_ATTRS) is not None:
+            doubly = True
+        nodes[str(oid)] = {'id': oid, 'value': val, 'next': id(nxt) if is_node_like(nxt) else None}
+        cur = nxt
+        if len(order) > 2000:
+            break
+    return {'kind': 'linked_list', 'order': order, 'nodes': nodes, 'cyclic': cyclic, 'doubly': doubly}
+
+def snapshot_graph_objs(start):
+    nodes = {}
+    seen = set()
+    queue = [start]
+    while queue:
+        o = queue.pop(0)
+        if o is None or not is_node_like(o):
+            continue
+        oid = id(o)
+        if oid in seen:
+            continue
+        seen.add(oid)
+        try:
+            val = jsafe(get_val(o))
+        except Exception:
+            val = '?'
+        neighs = _get_attr(o, NEIGHBOR_LIST_ATTRS) or []
+        if isinstance(neighs, dict):
+            neighs = list(neighs.keys())
+        neigh_ids = []
+        for nb in neighs:
+            nb_obj = nb[0] if isinstance(nb, (list, tuple)) and nb else nb
+            if is_node_like(nb_obj):
+                neigh_ids.append(id(nb_obj))
+                queue.append(nb_obj)
+        nodes[str(oid)] = {'id': oid, 'value': val, 'neighbors': neigh_ids}
+        if len(nodes) > 500:
+            break
+    return {'kind': 'graph', 'start': id(start), 'nodes': nodes}
+
+def snapshot_graph_dict(d):
+    nodes = {}
+    for k, v in list(d.items())[:500]:
+        key = k if isinstance(k, (str, int)) else repr(k)
+        neighs = []
+        if isinstance(v, (list, tuple, set)):
+            for nb in v:
+                nb_key = nb[0] if isinstance(nb, (list, tuple)) and nb else nb
+                neighs.append(nb_key if isinstance(nb_key, (str, int)) else repr(nb_key))
+        nodes[str(key)] = {'value': key, 'neighbors': [str(n) for n in neighs]}
+    keys = list(nodes.keys())
+    return {'kind': 'graph', 'start': keys[0] if keys else None, 'nodes': nodes}
+
+def snapshot_list_like(lst, kind):
+    items = []
+    for v in list(lst)[:1000]:
+        try:
+            items.append(jsafe(get_val(v)) if is_node_like(v) else jsafe(v))
+        except Exception:
+            items.append('?')
+    return {'kind': kind, 'items': items}
+
+def snapshot_structure(obj, kind):
+    if kind == 'tree':
+        return snapshot_tree(obj)
+    if kind == 'linked_list':
+        return snapshot_linked_list(obj)
+    if kind == 'graph':
+        return snapshot_graph_objs(obj)
+    if kind == 'graph_dict':
+        return snapshot_graph_dict(obj)
+    if kind in ('array', 'stack', 'queue'):
+        return snapshot_list_like(obj, kind)
+    return None
 
 def _collect_frames(frame):
-    # All frames belonging to the user's executing code, from the
-    # module/driver level down to the current (innermost) frame.
     frames = []
     f = frame
     while f is not None and f.f_globals is user_globals:
@@ -407,13 +729,24 @@ def _collect_namespaces(frame):
             namespaces.append(fr.f_locals)
     return namespaces
 
-NODE_LOCAL_PRIORITY = ('self', 'node', 'current', 'cur', 'curr', 'n', 'root')
+NODE_LOCAL_PRIORITY = ('self', 'node', 'current', 'cur', 'curr', 'temp', 'ptr', 'n', 'root', 'head')
+INDEX_LOCAL_PRIORITY = ('i', 'idx', 'index', 'j', 'k', 'pos')
 
-def frame_node_id(frame):
-    # The node this particular stack frame is "standing on" -- i.e. which
-    # tree node this call of the function is operating on. This is what
-    # lets us show the interpreter's actual recursion path through the
-    # tree, not just a single guessed node.
+def frame_active_locator(frame, kind):
+    if kind in ('array', 'stack', 'queue'):
+        for name in INDEX_LOCAL_PRIORITY:
+            if name in frame.f_locals:
+                v = frame.f_locals[name]
+                if isinstance(v, int) and not isinstance(v, bool):
+                    return v
+        return None
+    if kind == 'graph_dict':
+        for name in NODE_LOCAL_PRIORITY:
+            if name in frame.f_locals:
+                v = frame.f_locals[name]
+                if isinstance(v, (str, int)):
+                    return str(v)
+        return None
     for name in NODE_LOCAL_PRIORITY:
         if name in frame.f_locals:
             v = frame.f_locals[name]
@@ -421,38 +754,55 @@ def frame_node_id(frame):
                 return id(v)
     return None
 
-def call_stack_path(frame):
-    # Ordered root-to-current list of node ids, one per active stack
-    # frame that is "on" a node -- i.e. the live recursion path.
+def call_stack_path(frame, kind):
     path = []
     for fr in _collect_frames(frame):
-        nid = frame_node_id(fr)
-        if nid is not None:
-            path.append(nid)
+        loc = frame_active_locator(fr, kind)
+        if loc is not None:
+            path.append(loc)
     return path
 
-def find_root_candidate(frame):
+def _try_classify(v, name):
+    k = classify(v, name)
+    if k:
+        return v, k
+    for attr in ROOT_ATTR_NAMES:
+        if hasattr(v, attr):
+            inner = getattr(v, attr, None)
+            k2 = classify(inner, name)
+            if k2:
+                return inner, k2
+    return None, None
+
+def find_structure_candidate(frame):
     namespaces = _collect_namespaces(frame)
-    # Pass 1: look for a conventionally-named variable holding a node,
-    # or an object exposing a .root/.head/.top attribute (wrapper class).
+    priority = set(STRUCT_NAMES)
+    # Pass 1: conventionally-named variables.
     for ns in namespaces:
-        for name in ROOT_NAMES:
-            if name in ns:
-                v = ns[name]
-                if is_node_like(v):
-                    return v
-                for attr in ROOT_ATTR_NAMES:
-                    if hasattr(v, attr) and is_node_like(getattr(v, attr, None)):
-                        return getattr(v, attr)
-    # Pass 2: look for any variable at all whose value is node-like.
+        for name, v in ns.items():
+            if name.startswith('__') or name.lower() not in priority:
+                continue
+            obj, k = _try_classify(v, name)
+            if obj is not None:
+                return obj, k
+    # Pass 2: any node-like / graph-dict candidate (arrays are lower priority
+    # here since a scratch list is common and usually not the intended structure).
     for ns in namespaces:
-        for v in ns.values():
-            if is_node_like(v):
-                return v
-            for attr in ROOT_ATTR_NAMES:
-                if hasattr(v, attr) and is_node_like(getattr(v, attr, None)):
-                    return getattr(v, attr)
-    return None
+        for name, v in ns.items():
+            if name.startswith('__'):
+                continue
+            obj, k = _try_classify(v, name)
+            if obj is not None and k not in ('array', 'stack', 'queue'):
+                return obj, k
+    # Pass 3: fall back to any list/deque-shaped candidate.
+    for ns in namespaces:
+        for name, v in ns.items():
+            if name.startswith('__'):
+                continue
+            obj, k = _try_classify(v, name)
+            if obj is not None:
+                return obj, k
+    return None, None
 
 def safe_locals(frame):
     out = {}
@@ -478,20 +828,23 @@ def tracer(frame, event, arg):
         if len(trace_steps) >= MAX_STEPS:
             sys.settrace(None)
             raise RuntimeError('Step limit (4000) exceeded -- possible infinite loop.')
+        kind = None
+        snap = None
         try:
-            root_cand = find_root_candidate(frame)
-            snap = snapshot_tree(root_cand)
+            cand, kind = find_structure_candidate(frame)
+            if cand is not None:
+                snap = snapshot_structure(cand, kind)
         except Exception:
             snap = None
         try:
-            path = call_stack_path(frame)
+            path = call_stack_path(frame, kind) if kind else []
         except Exception:
             path = []
         trace_steps.append({
             'line': frame.f_lineno,
             'func': frame.f_code.co_name,
             'locals': safe_locals(frame),
-            'tree': snap,
+            'struct': snap,
             'stack': path,
             'active': path[-1] if path else None,
         })
@@ -516,7 +869,7 @@ let pyodideInstance = null;
 const statusEl = document.getElementById('pyStatus');
 const codeInput = document.getElementById('codeInput');
 const runBtn = document.getElementById('runBtn');
-const sampleBtn = document.getElementById('sampleBtn');
+const sampleSelect = document.getElementById('sampleSelect');
 const codeView = document.getElementById('codeView');
 const outputBox = document.getElementById('outputBox');
 const watchList = document.getElementById('watchList');
@@ -532,8 +885,14 @@ const pauseBtn = document.getElementById('pauseBtn');
 const endBtn = document.getElementById('endBtn');
 const speedSlider = document.getElementById('speedSlider');
 const speedLabel = document.getElementById('speedLabel');
+const emptyMsg = document.getElementById('emptyMsg');
+const structInner = document.getElementById('structInner');
+const arrayRow = document.getElementById('arrayRow');
+const treeSvg = document.getElementById('treeSvg');
+const heapToggleWrap = document.getElementById('heapToggleWrap');
+const heapTreeToggle = document.getElementById('heapTreeToggle');
 
-codeInput.value = SAMPLE;
+codeInput.value = SAMPLES.bst;
 
 const state = { steps: [], idx: -1, timer: null, playing: false };
 
@@ -556,8 +915,6 @@ initPyodide();
 function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
 
 function scrollIntoContainer(el, container, padding){
-  // Manual scroll, scoped strictly to the given scrollable container.
-  // Never touches window/page scroll, unlike el.scrollIntoView().
   if (!el || !container) return;
   padding = padding || 8;
   const elTop = el.offsetTop;
@@ -609,7 +966,8 @@ function depthOf(snap, idKey){
 function layout(snap){
   // Generalized tree layout: leaves get the next slot left-to-right,
   // internal nodes are centered over their children's x-range. Works
-  // for binary (left/right) trees and n-ary (children-list) trees alike.
+  // for binary (left/right) trees, n-ary (children-list) trees, and the
+  // synthetic tree built from an array-backed heap alike.
   const positions = {};
   let leafCounter = 0;
   const SPX = 58, SPY = 76, TOP = 36;
@@ -631,32 +989,17 @@ function layout(snap){
   return { positions, width: Math.max(leafCounter*SPX + SPX, 220), height: SPY*Math.max(1, depthOf(snap, snap.root)) + 100 };
 }
 
-function renderTree(snap, activeId, pathIds, visitedIds){
-  const wrap = document.getElementById('treeScroll');
-  const svg = document.getElementById('treeSvg');
-  pathIds = pathIds || new Set();
-  visitedIds = visitedIds || new Set();
-  if (!snap || snap.root === null || snap.root === undefined){
-    svg.innerHTML = ''; svg.setAttribute('width',0); svg.setAttribute('height',0);
-    if (!wrap.querySelector('.empty-msg')){
-      wrap.innerHTML = '<div class="empty-msg">no tree detected yet — run your code</div>';
-      wrap.appendChild(svg);
-    }
+function renderTree(snap, activeKey, pathKeys, visitedKeys){
+  if (snap.root === null || snap.root === undefined){
+    treeSvg.innerHTML = ''; treeSvg.setAttribute('width',0); treeSvg.setAttribute('height',0);
     return;
   }
-  const emptyMsg = wrap.querySelector('.empty-msg');
-  if (emptyMsg) emptyMsg.remove();
-  if (!wrap.contains(svg)) wrap.appendChild(svg);
-
   const { positions, width, height } = layout(snap);
-  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
-  svg.setAttribute('width', width);
-  svg.setAttribute('height', height);
+  treeSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  treeSvg.setAttribute('width', width);
+  treeSvg.setAttribute('height', height);
 
-  // Edges along the live recursion path (consecutive entries in pathIds
-  // that are direct parent/child) get drawn as "lit up" -- this is the
-  // trail showing where the interpreter has walked to reach the current node.
-  const pathArr = Array.from(pathIds);
+  const pathArr = Array.from(pathKeys);
   const litEdges = new Set();
   for (let i = 0; i < pathArr.length - 1; i++) litEdges.add(pathArr[i] + '>' + pathArr[i+1]);
 
@@ -673,22 +1016,221 @@ function renderTree(snap, activeId, pathIds, visitedIds){
       }
     });
   });
-  svg.innerHTML = html;
+  treeSvg.innerHTML = html;
 
   Object.values(snap.nodes).forEach(n=>{
     const p = positions[String(n.id)];
     if (!p) return;
     const idStr = String(n.id);
     let cls = 'node-g';
-    if (idStr === String(activeId)) cls += ' active';
-    else if (pathIds.has(idStr)) cls += ' onpath';
-    else if (visitedIds.has(idStr)) cls += ' visited';
+    if (idStr === activeKey) cls += ' active';
+    else if (pathKeys.has(idStr)) cls += ' onpath';
+    else if (visitedKeys.has(idStr)) cls += ' visited';
     const g = document.createElementNS('http://www.w3.org/2000/svg','g');
     g.setAttribute('class', cls);
     g.style.transform = `translate(${p.x}px,${p.y}px)`;
     g.innerHTML = `<circle class="node-circle" r="19"></circle><text class="node-text" y="1">${escapeHtml(String(n.value))}</text>`;
-    svg.appendChild(g);
+    treeSvg.appendChild(g);
   });
+}
+
+function arrayToHeapSnap(struct){
+  const items = struct.items;
+  const n = items.length;
+  const nodes = {};
+  for (let idx=0; idx<n; idx++){
+    const kids = [];
+    const l = 2*idx+1, r = 2*idx+2;
+    if (l<n) kids.push(l);
+    if (r<n) kids.push(r);
+    nodes[String(idx)] = { id: idx, value: items[idx], children: kids };
+  }
+  return { kind: 'tree', root: n>0 ? 0 : null, nodes };
+}
+
+function renderLinkedList(struct, activeKey, pathKeys, visitedKeys){
+  const order = struct.order || [];
+  const BOXW=56, GAP=46, Y=50;
+  const width = Math.max(order.length*(BOXW+GAP)+GAP, 220);
+  const height = struct.cyclic ? 150 : 110;
+  treeSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  treeSvg.setAttribute('width', width);
+  treeSvg.setAttribute('height', height);
+
+  const positions = {};
+  order.forEach((id,idx)=>{ positions[String(id)] = { x: GAP + idx*(BOXW+GAP), y: Y }; });
+
+  let html = `<defs><marker id="arrowhead" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--teal)"></path></marker></defs>`;
+  for (let idx=0; idx<order.length-1; idx++){
+    const a = positions[String(order[idx])], b = positions[String(order[idx+1])];
+    const lit = pathKeys.has(String(order[idx])) && pathKeys.has(String(order[idx+1]));
+    html += `<line class="edge${lit?' edge-lit':''}" marker-end="url(#arrowhead)" x1="${a.x+BOXW/2+16}" y1="${a.y}" x2="${b.x-BOXW/2+2}" y2="${b.y}"></line>`;
+  }
+  if (struct.cyclic && order.length){
+    const a = positions[String(order[order.length-1])];
+    const b = positions[String(order[0])];
+    html += `<path class="edge edge-lit" marker-end="url(#arrowhead)" d="M${a.x},${a.y+22} C${a.x},${a.y+70} ${b.x},${b.y+70} ${b.x},${b.y+22}" fill="none"></path>`;
+  }
+  treeSvg.innerHTML = html;
+
+  order.forEach(id=>{
+    const p = positions[String(id)];
+    const n = struct.nodes[String(id)];
+    const idStr = String(id);
+    let cls = 'node-g';
+    if (idStr === activeKey) cls += ' active';
+    else if (pathKeys.has(idStr)) cls += ' onpath';
+    else if (visitedKeys.has(idStr)) cls += ' visited';
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class', cls);
+    g.style.transform = `translate(${p.x}px,${p.y}px)`;
+    g.innerHTML = `<rect class="node-rect" x="-28" y="-18" width="56" height="36" rx="8"></rect><text class="node-text" y="1">${escapeHtml(String(n.value))}</text>`;
+    treeSvg.appendChild(g);
+  });
+}
+
+function renderGraph(struct, activeKey, pathKeys, visitedKeys){
+  const ids = Object.keys(struct.nodes);
+  const n = ids.length;
+  if (!n){
+    treeSvg.innerHTML=''; treeSvg.setAttribute('width',0); treeSvg.setAttribute('height',0);
+    return;
+  }
+  const R = Math.max(70, n*17);
+  const cx = R+40, cy = R+40;
+  const width = 2*(R+40), height = 2*(R+40);
+  treeSvg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  treeSvg.setAttribute('width', width);
+  treeSvg.setAttribute('height', height);
+
+  const positions = {};
+  ids.forEach((id,idx)=>{
+    const angle = (idx/n)*2*Math.PI - Math.PI/2;
+    positions[id] = { x: cx + R*Math.cos(angle), y: cy + R*Math.sin(angle) };
+  });
+
+  let html='';
+  const drawn = new Set();
+  ids.forEach(id=>{
+    const node = struct.nodes[id];
+    (node.neighbors||[]).forEach(nb=>{
+      const nbKey = String(nb);
+      if (!positions[nbKey]) return;
+      const key = [id,nbKey].sort().join('|');
+      if (drawn.has(key)) return;
+      drawn.add(key);
+      const a = positions[id], b = positions[nbKey];
+      const lit = pathKeys.has(id) && pathKeys.has(nbKey);
+      html += `<line class="edge${lit?' edge-lit':''}" x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}"></line>`;
+    });
+  });
+  treeSvg.innerHTML = html;
+
+  ids.forEach(id=>{
+    const p = positions[id];
+    const node = struct.nodes[id];
+    let cls = 'node-g';
+    if (id === activeKey) cls += ' active';
+    else if (pathKeys.has(id)) cls += ' onpath';
+    else if (visitedKeys.has(id)) cls += ' visited';
+    const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class', cls);
+    g.style.transform = `translate(${p.x}px,${p.y}px)`;
+    g.innerHTML = `<circle class="node-circle" r="19"></circle><text class="node-text" y="1">${escapeHtml(String(node.value))}</text>`;
+    treeSvg.appendChild(g);
+  });
+}
+
+function arrayCellsHtml(struct, activeKey, pathKeys, visitedKeys){
+  return struct.items.map((v,idx)=>{
+    let cls = 'array-cell';
+    const k = String(idx);
+    if (k === activeKey) cls += ' active';
+    else if (pathKeys.has(k)) cls += ' onpath';
+    else if (visitedKeys.has(k)) cls += ' visited';
+    return { idx, html: `<div class="${cls}"><div class="array-val">${escapeHtml(String(v))}</div><div class="array-idx">${idx}</div></div>` };
+  });
+}
+
+function renderArrayRow(struct, activeKey, pathKeys, visitedKeys){
+  arrayRow.classList.remove('stack-col');
+  const cells = arrayCellsHtml(struct, activeKey, pathKeys, visitedKeys);
+  arrayRow.innerHTML = cells.map(c=>c.html).join('');
+}
+
+function renderStackColumn(struct, activeKey, pathKeys, visitedKeys){
+  arrayRow.classList.add('stack-col');
+  const n = struct.items.length;
+  const cells = arrayCellsHtml(struct, activeKey, pathKeys, visitedKeys);
+  arrayRow.innerHTML = cells.map(c=>{
+    const tag = c.idx === n-1 ? '<div class="stack-tag">← top</div>' : '';
+    return c.html.replace('</div>', tag + '</div>');
+  }).join('');
+}
+
+function renderQueueRow(struct, activeKey, pathKeys, visitedKeys){
+  arrayRow.classList.remove('stack-col');
+  const cells = arrayCellsHtml(struct, activeKey, pathKeys, visitedKeys);
+  const n = struct.items.length;
+  arrayRow.innerHTML = (n ? '<div class="queue-tag">front →</div>' : '') +
+    cells.map(c=>c.html).join('') +
+    (n ? '<div class="queue-tag">← rear</div>' : '');
+}
+
+function showEmptyMessage(msg){
+  emptyMsg.textContent = msg;
+  emptyMsg.style.display = 'block';
+  structInner.style.display = 'none';
+  heapToggleWrap.style.display = 'none';
+}
+
+function clearEmptyMessage(){
+  emptyMsg.style.display = 'none';
+  structInner.style.display = 'flex';
+}
+
+function renderStruct(step, i){
+  const struct = step.struct;
+  if (!struct){
+    showEmptyMessage('no structure detected yet — run your code');
+    return;
+  }
+  clearEmptyMessage();
+
+  const activeKey = (step.active !== null && step.active !== undefined) ? String(step.active) : null;
+  const pathKeys = new Set((step.stack || []).map(String));
+  const visitedKeys = computeVisitedSet(i);
+
+  if (struct.kind === 'array' || struct.kind === 'stack' || struct.kind === 'queue'){
+    arrayRow.style.display = 'flex';
+    if (struct.kind === 'array'){
+      renderArrayRow(struct, activeKey, pathKeys, visitedKeys);
+      const allNums = struct.items.length && struct.items.every(v => typeof v === 'number');
+      heapToggleWrap.style.display = allNums ? 'inline-flex' : 'none';
+      const showTree = allNums && heapTreeToggle.checked;
+      if (showTree){
+        treeSvg.style.display = 'block';
+        renderTree(arrayToHeapSnap(struct), activeKey, pathKeys, visitedKeys);
+      } else {
+        treeSvg.style.display = 'none';
+        treeSvg.innerHTML = ''; treeSvg.removeAttribute('width'); treeSvg.removeAttribute('height');
+      }
+    } else {
+      heapToggleWrap.style.display = 'none';
+      treeSvg.style.display = 'none';
+      treeSvg.innerHTML = ''; treeSvg.removeAttribute('width'); treeSvg.removeAttribute('height');
+      if (struct.kind === 'stack') renderStackColumn(struct, activeKey, pathKeys, visitedKeys);
+      else renderQueueRow(struct, activeKey, pathKeys, visitedKeys);
+    }
+    return;
+  }
+
+  arrayRow.style.display = 'none';
+  heapToggleWrap.style.display = 'none';
+  treeSvg.style.display = 'block';
+  if (struct.kind === 'tree') renderTree(struct, activeKey, pathKeys, visitedKeys);
+  else if (struct.kind === 'linked_list') renderLinkedList(struct, activeKey, pathKeys, visitedKeys);
+  else if (struct.kind === 'graph') renderGraph(struct, activeKey, pathKeys, visitedKeys);
 }
 
 function renderLocals(locals, func){
@@ -714,10 +1256,7 @@ function showStep(i){
   const step = state.steps[i];
   highlightLine(step.line);
   renderLocals(step.locals, step.func);
-  const activeId = (step.active !== null && step.active !== undefined) ? String(step.active) : null;
-  const pathIds = new Set((step.stack || []).map(String));
-  const visitedIds = computeVisitedSet(i);
-  renderTree(step.tree, activeId, pathIds, visitedIds);
+  renderStruct(step, i);
   stepIndicator.textContent = `step ${i+1} / ${state.steps.length}`;
   stepIndicator2.textContent = `line ${step.line}`;
   traceLog.querySelectorAll('.entry').forEach(el=>el.classList.toggle('current', parseInt(el.dataset.idx,10)===i));
@@ -751,7 +1290,14 @@ speedSlider.addEventListener('input', ()=>{
   speedLabel.textContent = speedSlider.value + 'ms';
   if (state.playing){ stopPlay(); startPlay(); }
 });
-sampleBtn.addEventListener('click', ()=>{ codeInput.value = SAMPLE; });
+sampleSelect.addEventListener('change', ()=>{
+  const key = sampleSelect.value;
+  if (key && SAMPLES[key]) codeInput.value = SAMPLES[key];
+  sampleSelect.value = '';
+});
+heapTreeToggle.addEventListener('change', ()=>{
+  if (state.idx >= 0) renderStruct(state.steps[state.idx], state.idx);
+});
 
 async function runCode(){
   stopPlay();
@@ -780,7 +1326,7 @@ async function runCode(){
     statusEl.className = data.error ? 'err' : 'ready';
     playControls.style.display = 'flex';
     if (state.steps.length){ showStep(0); }
-    else { renderTree(null, null); renderLocals({}, null); }
+    else { showEmptyMessage('no structure detected yet — run your code'); renderLocals({}, null); }
   } catch(e){
     statusEl.textContent = 'run failed: ' + e.message;
     statusEl.className = 'err';
@@ -794,7 +1340,7 @@ async function runCode(){
 runBtn.addEventListener('click', runCode);
 
 renderSourceLines(codeInput.value);
-renderTree(null, null);
+showEmptyMessage('paste code and hit Run to begin');
 </script>
 </body>
 </html>
